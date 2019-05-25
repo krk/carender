@@ -171,6 +171,16 @@ bool Lexer::lex(std::istream &input, std::vector<Token> &output, std::ostream &e
                     output.push_back(TokenFactory::newEndBlock(ctx));
                     break;
                 case '}':
+                    if (input.peek() == '}')
+                    {
+                        // End directive.
+                        input >> c;
+                        pos = input.tellg();
+                        this->isInBlock = false;
+                        this->isInDirective = false;
+                        output.push_back(TokenFactory::newEndDirective(Context(pos - 2L, pos)));
+                        continue;
+                    }
                     error << "Unexpected token '}' at " << ctx << "." << std::endl;
                     return false;
                 default:
@@ -199,7 +209,7 @@ bool Lexer::lex(std::istream &input, std::vector<Token> &output, std::ostream &e
                                      ? TokenFactory::newSymbol(identifier, Context(pos - 1L, input.tellg()))
                                      : TokenFactory::newKeyword(identifier, Context(pos, input.tellg())));
                 input >> std::ws;
-                this->isInBlock = true;
+                this->isInBlock = !isSymbol;
             }
         }
         else

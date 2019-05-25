@@ -97,6 +97,19 @@ TEST_CASE("Lexer::lex", "[lexer]")
         REQUIRE_THAT(tokens, Equals(expectedTokens));
     }
 
+    SECTION("StartDirective Symbol")
+    {
+        std::stringstream input("{{x");
+        lexer.lex(input, tokens, error);
+
+        expectedErrors = "Directive not closed.\n";
+        std::vector<car::lexer::Token> expectedTokens = {
+            TokenFactory::newStartDirective(Context(0, 2)),
+            TokenFactory::newSymbol("x", Context(-2, -1)),
+        };
+        REQUIRE_THAT(tokens, Equals(expectedTokens));
+    }
+
     SECTION("StartDirective StartBlock Symbol EndDirective")
     {
         std::stringstream input("{{#mop floors}}");
@@ -122,6 +135,22 @@ TEST_CASE("Lexer::lex", "[lexer]")
             TokenFactory::newStartDirective(Context(0, 2)),
             TokenFactory::newStartBlock(Context(2, 3)),
             TokenFactory::newKeyword("mop", Context(3, -1)),
+        };
+        REQUIRE_THAT(tokens, Equals(expectedTokens));
+    }
+
+    SECTION("StartDirective StartBlock Keyword Symbol")
+    {
+        std::stringstream input("{{#mop #nop}}");
+        lexer.lex(input, tokens, error);
+
+        std::vector<car::lexer::Token> expectedTokens = {
+            TokenFactory::newStartDirective(Context(0, 2)),
+            TokenFactory::newStartBlock(Context(2, 3)),
+            TokenFactory::newKeyword("mop", Context(3, 6)),
+            // Symbols can start with '#', although that is not recommended.
+            TokenFactory::newSymbol("#nop", Context(7, 11)),
+            TokenFactory::newEndDirective(Context(11, 13)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
     }
@@ -156,7 +185,7 @@ Last line.)");
         lexer.lex(input, tokens, error);
 
         std::vector<car::lexer::Token> expectedTokens = {};
-        REQUIRE(tokens.size() == 23);
+        REQUIRE(tokens.size() == 24);
     }
 
     SECTION("lexers gonna lex")
