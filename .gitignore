@@ -3,6 +3,9 @@
 test_coverage
 bin
 
+*.gcno
+*.gcda
+
 # Prerequisites
 *.d
 

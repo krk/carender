@@ -85,7 +85,7 @@ std::ostream &operator<<(std::ostream &os, const Context &ctx)
     return os;
 }
 
-const std::string Lexer::readKeyword(std::istream &input)
+const std::string Lexer::readIdentifier(std::istream &input)
 {
     std::string word;
     char c;
@@ -122,13 +122,7 @@ bool Lexer::lex(std::istream &input, std::vector<Token> &output, std::ostream &e
                 // Token can be a Symbol or an EndDirective.
                 if (std::isspace(c))
                 {
-                    if (text.size() == 0)
-                    {
-                        error << "Expected a symbol at " << pos << "." << std::endl;
-                        return false;
-                    }
-
-                    output.push_back(TokenFactory::newSymbol(text, Context(textPos, pos)));
+                    output.push_back(TokenFactory::newSymbol(text, Context(textPos, pos - 1L)));
                     textPos = -1;
                     text = "";
                     input >> std::ws;
@@ -142,6 +136,13 @@ bool Lexer::lex(std::istream &input, std::vector<Token> &output, std::ostream &e
                 }
                 else if (c == '}' && input.peek() == '}')
                 {
+                    if (text.size() != 0)
+                    {
+                        output.push_back(TokenFactory::newSymbol(text, Context(textPos, textPos + text.size())));
+                        textPos = -1;
+                        text = "";
+                    }
+
                     prev_c = c;
                     continue;
                 }
@@ -158,8 +159,9 @@ bool Lexer::lex(std::istream &input, std::vector<Token> &output, std::ostream &e
             {
                 auto pos = input.tellg();
                 auto ctx = Context(pos - 1L, pos);
+                auto isSymbol = false;
 
-                // Token can be a StartBlock or an EndBlock.
+                // Token can be a StartBlock, an EndBlock or a Symbol.
                 switch (c)
                 {
                 case '#':
@@ -168,23 +170,34 @@ bool Lexer::lex(std::istream &input, std::vector<Token> &output, std::ostream &e
                 case '/':
                     output.push_back(TokenFactory::newEndBlock(ctx));
                     break;
-                default:
-                    error << "Unexpected token '" << c << "' at " << ctx << "." << std::endl;
+                case '}':
+                    error << "Unexpected token '}' at " << ctx << "." << std::endl;
                     return false;
+                default:
+                    isSymbol = true;
+                    break;
                 }
 
                 // Token can be a keyword.
                 input >> std::ws;
                 pos = input.tellg();
-                auto keyword = this->readKeyword(input);
+                auto identifier = this->readIdentifier(input);
 
-                if (keyword.size() == 0)
+                if (isSymbol)
                 {
-                    error << "Expected keyword at " << ctx << "." << std::endl;
+                    identifier = c + identifier;
+                }
+
+                if (identifier.size() == 0)
+                {
+                    error << "Expected " << (isSymbol ? "symbol" : "keyword")
+                          << " at " << ctx << "." << std::endl;
                     return false;
                 }
 
-                output.push_back(TokenFactory::newKeyword(keyword, Context(pos, input.tellg())));
+                output.push_back(isSymbol
+                                     ? TokenFactory::newSymbol(identifier, Context(pos - 1L, input.tellg()))
+                                     : TokenFactory::newKeyword(identifier, Context(pos, input.tellg())));
                 input >> std::ws;
                 this->isInBlock = true;
             }

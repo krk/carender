@@ -90,7 +90,7 @@ public:
     bool lex(std::istream &input, std::vector<Token> &output, std::ostream &error);
 
 private:
-    const std::string readKeyword(std::istream &input);
+    const std::string readIdentifier(std::istream &input);
 
     bool isInDirective = false;
     bool isInBlock = false;
