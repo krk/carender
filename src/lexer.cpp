@@ -65,6 +65,9 @@ std::ostream &operator<<(std::ostream &os, const Token::Type &type)
     case Token::Type::Symbol:
         os << "Symbol";
         break;
+    default:
+        os << "#unsupported token type#";
+        break;
     }
     return os;
 }
@@ -94,7 +97,7 @@ const std::string Lexer::readIdentifier(std::istream &input)
         word += c;
     }
 
-    if (c != EOF)
+    if (input.tellg() != EOF)
     {
         input.seekg(-1, std::ios_base::cur);
     }
@@ -200,8 +203,7 @@ bool Lexer::lex(std::istream &input, std::vector<Token> &output, std::ostream &e
 
                 if (identifier.size() == 0)
                 {
-                    error << "Expected " << (isSymbol ? "symbol" : "keyword")
-                          << " at " << ctx << "." << std::endl;
+                    error << "Expected keyword at " << ctx << "." << std::endl;
                     return false;
                 }
 
@@ -249,7 +251,7 @@ bool Lexer::lex(std::istream &input, std::vector<Token> &output, std::ostream &e
 
     if (text.size() != 0)
     {
-        output.push_back(TokenFactory::newText(text, Context(textPos, textPos + text.size() - 1)));
+        output.push_back(TokenFactory::newText(text, Context(textPos, textPos + text.size())));
         textPos = -1;
         text = "";
     }
