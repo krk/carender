@@ -1,5 +1,7 @@
 #include "lexer.hpp"
 
+using namespace car;
+
 namespace car
 {
 namespace lexer
@@ -79,12 +81,6 @@ std::ostream &operator<<(std::ostream &os, const Token &tok)
     {
         os << " '" << tok.value << "'";
     }
-    return os;
-}
-
-std::ostream &operator<<(std::ostream &os, const Context &ctx)
-{
-    os << "[" << ctx.startPos << ", " << ctx.endPos << ")";
     return os;
 }
 

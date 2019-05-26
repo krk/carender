@@ -3,9 +3,10 @@ using Catch::Matchers::Equals;
 
 #include <iostream>
 #include <sstream>
+#include "context.hpp"
 #include "lexer.hpp"
 
-using car::lexer::Context;
+using car::Context;
 using car::lexer::Lexer;
 using car::lexer::Token;
 using car::lexer::TokenFactory;

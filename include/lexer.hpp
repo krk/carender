@@ -6,32 +6,14 @@
 #include <ostream>
 #include <vector>
 
+#include "context.hpp"
+
+using Context = car::Context;
+
 namespace car
 {
 namespace lexer
 {
-class Context
-{
-public:
-    Context(int startPos, int endPos) : startPos(startPos), endPos(endPos) {}
-
-    friend std::ostream &operator<<(std::ostream &os, const Context &ctx);
-
-    bool operator==(const Context &rhs) const
-    {
-        return (startPos == rhs.startPos) && (endPos == rhs.endPos);
-    }
-
-    bool operator!=(const Context &rhs) const
-    {
-        return !operator==(rhs);
-    }
-
-private:
-    int startPos;
-    int endPos;
-};
-
 class Token
 {
 public:
