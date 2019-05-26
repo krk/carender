@@ -74,8 +74,8 @@ TEST_CASE("Lexer::Token", "[lexer]")
 TEST_CASE("Lexer::lex", "[lexer]")
 {
     std::stringstream error;
-    auto lexer = car::lexer::Lexer();
-    auto tokens = std::vector<car::lexer::Token>();
+    auto lexer = Lexer();
+    auto tokens = std::vector<Token>();
     std::string expectedErrors;
 
     SECTION("Text single char")
@@ -83,7 +83,7 @@ TEST_CASE("Lexer::lex", "[lexer]")
         std::stringstream input("p");
         lexer.lex(input, tokens, error);
 
-        std::vector<car::lexer::Token> expectedTokens = {
+        std::vector<Token> expectedTokens = {
             TokenFactory::newText("p", Context(0, 1)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
@@ -94,7 +94,7 @@ TEST_CASE("Lexer::lex", "[lexer]")
         std::stringstream input("{q");
         lexer.lex(input, tokens, error);
 
-        std::vector<car::lexer::Token> expectedTokens = {
+        std::vector<Token> expectedTokens = {
             TokenFactory::newText("{q", Context(0, 2)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
@@ -105,7 +105,7 @@ TEST_CASE("Lexer::lex", "[lexer]")
         std::stringstream input("lorem ipsum ");
         lexer.lex(input, tokens, error);
 
-        std::vector<car::lexer::Token> expectedTokens = {
+        std::vector<Token> expectedTokens = {
             TokenFactory::newText("lorem ipsum ", Context(0, 12)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
@@ -117,7 +117,7 @@ TEST_CASE("Lexer::lex", "[lexer]")
         lexer.lex(input, tokens, error);
 
         expectedErrors = "Unexpected token '}' at [2, 3).\n";
-        std::vector<car::lexer::Token> expectedTokens = {
+        std::vector<Token> expectedTokens = {
             TokenFactory::newStartDirective(Context(0, 2)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
@@ -129,7 +129,7 @@ TEST_CASE("Lexer::lex", "[lexer]")
         lexer.lex(input, tokens, error);
 
         expectedErrors = "Expected keyword at [2, 3).\n";
-        std::vector<car::lexer::Token> expectedTokens = {
+        std::vector<Token> expectedTokens = {
             TokenFactory::newStartDirective(Context(0, 2)),
             TokenFactory::newStartBlock(Context(2, 3)),
         };
@@ -141,7 +141,7 @@ TEST_CASE("Lexer::lex", "[lexer]")
         std::stringstream input("{{#mop}}");
         lexer.lex(input, tokens, error);
 
-        std::vector<car::lexer::Token> expectedTokens = {
+        std::vector<Token> expectedTokens = {
             TokenFactory::newStartDirective(Context(0, 2)),
             TokenFactory::newStartBlock(Context(2, 3)),
             TokenFactory::newKeyword("mop", Context(3, 6)),
@@ -155,7 +155,7 @@ TEST_CASE("Lexer::lex", "[lexer]")
         std::stringstream input("{{/mop}}");
         lexer.lex(input, tokens, error);
 
-        std::vector<car::lexer::Token> expectedTokens = {
+        std::vector<Token> expectedTokens = {
             TokenFactory::newStartDirective(Context(0, 2)),
             TokenFactory::newEndBlock(Context(2, 3)),
             TokenFactory::newKeyword("mop", Context(3, 6)),
@@ -169,7 +169,7 @@ TEST_CASE("Lexer::lex", "[lexer]")
         std::stringstream input("{{x}}");
         lexer.lex(input, tokens, error);
 
-        std::vector<car::lexer::Token> expectedTokens = {
+        std::vector<Token> expectedTokens = {
             TokenFactory::newStartDirective(Context(0, 2)),
             TokenFactory::newSymbol("x", Context(2, 3)),
             TokenFactory::newEndDirective(Context(3, 5)),
@@ -183,7 +183,7 @@ TEST_CASE("Lexer::lex", "[lexer]")
         lexer.lex(input, tokens, error);
 
         expectedErrors = "Directive not closed.\n";
-        std::vector<car::lexer::Token> expectedTokens = {
+        std::vector<Token> expectedTokens = {
             TokenFactory::newStartDirective(Context(0, 2)),
             TokenFactory::newSymbol("x", Context(-2, -1)),
         };
@@ -195,7 +195,7 @@ TEST_CASE("Lexer::lex", "[lexer]")
         std::stringstream input("{{#mop floors}}");
         lexer.lex(input, tokens, error);
 
-        std::vector<car::lexer::Token> expectedTokens = {
+        std::vector<Token> expectedTokens = {
             TokenFactory::newStartDirective(Context(0, 2)),
             TokenFactory::newStartBlock(Context(2, 3)),
             TokenFactory::newKeyword("mop", Context(3, 6)),
@@ -211,7 +211,7 @@ TEST_CASE("Lexer::lex", "[lexer]")
         lexer.lex(input, tokens, error);
 
         expectedErrors = "Block not closed.\n";
-        std::vector<car::lexer::Token> expectedTokens = {
+        std::vector<Token> expectedTokens = {
             TokenFactory::newStartDirective(Context(0, 2)),
             TokenFactory::newStartBlock(Context(2, 3)),
             TokenFactory::newKeyword("mop", Context(3, -1)),
@@ -225,7 +225,7 @@ TEST_CASE("Lexer::lex", "[lexer]")
         lexer.lex(input, tokens, error);
 
         expectedErrors = "Block not closed.\n";
-        std::vector<car::lexer::Token> expectedTokens = {
+        std::vector<Token> expectedTokens = {
             TokenFactory::newStartDirective(Context(0, 2)),
             TokenFactory::newStartBlock(Context(2, 3)),
             TokenFactory::newKeyword("mop", Context(3, 6)),
@@ -239,7 +239,7 @@ TEST_CASE("Lexer::lex", "[lexer]")
         std::stringstream input("{{#mop #nop}}");
         lexer.lex(input, tokens, error);
 
-        std::vector<car::lexer::Token> expectedTokens = {
+        std::vector<Token> expectedTokens = {
             TokenFactory::newStartDirective(Context(0, 2)),
             TokenFactory::newStartBlock(Context(2, 3)),
             TokenFactory::newKeyword("mop", Context(3, 6)),
@@ -255,7 +255,7 @@ TEST_CASE("Lexer::lex", "[lexer]")
         std::stringstream input("{{#mop   a  b \tcd }}");
         lexer.lex(input, tokens, error);
 
-        std::vector<car::lexer::Token> expectedTokens = {
+        std::vector<Token> expectedTokens = {
             TokenFactory::newStartDirective(Context(0, 2)),
             TokenFactory::newStartBlock(Context(2, 3)),
             TokenFactory::newKeyword("mop", Context(3, 6)),
@@ -279,7 +279,7 @@ This is a {{item}}.
 Last line.)");
         lexer.lex(input, tokens, error);
 
-        std::vector<car::lexer::Token> expectedTokens = {};
+        std::vector<Token> expectedTokens = {};
         REQUIRE(tokens.size() == 24);
     }
 
@@ -288,7 +288,7 @@ Last line.)");
         std::stringstream input("abc {{#xy }}\ndef# {{  # zdg s1  asfa2   }} art {{/audi}}");
         lexer.lex(input, tokens, error);
 
-        std::vector<car::lexer::Token> expectedTokens = {
+        std::vector<Token> expectedTokens = {
             TokenFactory::newText("abc ", Context(0, 4)),
             TokenFactory::newStartDirective(Context(4, 6)),
             TokenFactory::newStartBlock(Context(6, 7)),

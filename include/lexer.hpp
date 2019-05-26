@@ -44,6 +44,10 @@ public:
         return !operator==(rhs);
     }
 
+    Type GetType() const { return this->type; }
+    const std::string &GetValue() const { return this->value; }
+    const Context &GetContext() const { return this->context; }
+
 private:
     const Type type;
     const std::string value;

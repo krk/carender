@@ -22,6 +22,9 @@ public:
         return !operator==(rhs);
     }
 
+    int StartPos() const { return this->startPos; }
+    int EndPos() const { return this->endPos; }
+
 private:
     int startPos;
     int endPos;
