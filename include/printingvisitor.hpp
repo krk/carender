@@ -21,6 +21,8 @@ public:
     void visit(const PrintNode &n) override;
     void visit(const LoopNode &n, VisitReason reason) override;
 
+    virtual ~PrintingVisitor() = default;
+
 private:
     std::ostream &output;
     int loopDepth;

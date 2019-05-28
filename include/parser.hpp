@@ -1,8 +1,10 @@
 #ifndef _PARSER_HPP_INCLUDED
 #define _PARSER_HPP_INCLUDED
 
+#include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <memory>
 #include <iostream>
 
@@ -27,6 +29,8 @@ enum class VisitReason
 class Visitor
 {
 public:
+    virtual ~Visitor() = default;
+
     virtual void visit(const TextNode &n) = 0;
     virtual void visit(const PrintNode &n) = 0;
     virtual void visit(const LoopNode &n, VisitReason reason) = 0;
@@ -35,6 +39,8 @@ public:
 class Node
 {
 public:
+    virtual ~Node() = default;
+
     virtual void accept(Visitor &v) = 0;
 
 protected:
@@ -46,6 +52,8 @@ protected:
 class PrintNode : public Node
 {
 public:
+    virtual ~PrintNode() = default;
+
     PrintNode(std::string symbol, Context ctx) : Node(ctx), symbol(symbol) {}
 
     void accept(Visitor &v) override
@@ -62,6 +70,8 @@ private:
 class TextNode : public Node
 {
 public:
+    virtual ~TextNode() = default;
+
     TextNode(std::string text, Context ctx) : Node(ctx), text(text) {}
 
     void accept(Visitor &v) override
@@ -78,37 +88,62 @@ private:
 class LoopNode : public Node
 {
 public:
+    virtual ~LoopNode() = default;
+
     LoopNode(std::string rangeSymbol, std::string elementSymbol, Context ctx)
-        : Node(ctx), rangeSymbol(rangeSymbol), elementSymbol(elementSymbol), children(std::vector<std::unique_ptr<Node>>())
+        : Node(ctx), rangeSymbol(rangeSymbol), elementSymbol(elementSymbol), children(std::vector<std::shared_ptr<Node>>())
     {
     }
 
-    LoopNode(std::string rangeSymbol, std::string elementSymbol, Context ctx, std::vector<std::unique_ptr<Node>> children)
-        : Node(ctx), rangeSymbol(rangeSymbol), elementSymbol(elementSymbol), children(std::move(children)) {}
+    LoopNode(std::string rangeSymbol, std::string elementSymbol, Context ctx, std::vector<std::shared_ptr<Node>> children)
+        : Node(ctx), rangeSymbol(rangeSymbol), elementSymbol(elementSymbol), children(children)
+    {
+    }
 
     void accept(Visitor &v) override
     {
         v.visit(*this, VisitReason::Enter);
-        for (auto const &c : this->children)
+        for (auto const child : this->Children())
         {
-            c->accept(v);
+            child->accept(v);
         }
         v.visit(*this, VisitReason::Exit);
     }
 
-    const std::string &RangeSymbol() const { return this->rangeSymbol; }
-    const std::string &ElementSymbol() const { return this->elementSymbol; }
-    const std::vector<std::unique_ptr<Node>> &Children() const { return this->children; }
+    const std::string &RangeSymbol() const
+    {
+        return this->rangeSymbol;
+    }
+    const std::string &ElementSymbol() const
+    {
+        return this->elementSymbol;
+    }
+
+    const std::vector<std::shared_ptr<Node>> &Children() const
+    {
+        return this->children;
+    }
 
 private:
     const std::string rangeSymbol;
     const std::string elementSymbol;
-    std::vector<std::unique_ptr<Node>> children;
+    const std::vector<std::shared_ptr<Node>> children;
+};
+
+class ParserOptions
+{
+public:
+    ParserOptions(const std::unordered_set<std::string> &validSymbols)
+        : ValidSymbols(validSymbols) {}
+
+    const std::unordered_set<std::string> ValidSymbols;
 };
 
 class Parser
 {
 public:
+    Parser(ParserOptions options) : options(options) {}
+
     std::vector<std::unique_ptr<Node>> parse(const std::vector<lexer::Token> &tokens,
                                              std::ostream &error);
 
@@ -145,6 +180,8 @@ private:
     std::unordered_map<std::string, nodeParser> keywordParser = {
         {"loop", &Parser::parseLoop},
     };
+
+    const ParserOptions options;
 };
 
 } // namespace parser

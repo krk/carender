@@ -74,7 +74,16 @@ Parser::parseSymbols(std::vector<lexer::Token>::const_iterator &begin,
         {
         case Type::Symbol:
         {
-            symbols.push_back(it->GetValue());
+            const auto &symbol = it->GetValue();
+
+            if (!this->options.ValidSymbols.empty() &&
+                this->options.ValidSymbols.find(symbol) == this->options.ValidSymbols.end())
+            {
+                error << "Invalid symbol " << *it << std::endl;
+                goto fail;
+            }
+
+            symbols.push_back(symbol);
             seen++;
             break;
         }
@@ -104,7 +113,7 @@ Parser::parseLoop(std::vector<lexer::Token>::const_iterator &begin,
                   const std::vector<lexer::Token>::const_iterator end,
                   std::ostream &error) const
 {
-    std::vector<std::unique_ptr<Node>> children;
+    std::vector<std::shared_ptr<Node>> children;
     auto const initial = begin;
 
     // {{#loop range element}} ... {{/loop}}
@@ -117,7 +126,10 @@ Parser::parseLoop(std::vector<lexer::Token>::const_iterator &begin,
     }
 
     // Parse children.
-    children = this->parseNodes(begin, end, error);
+    for (auto &n : this->parseNodes(begin, end, error))
+    {
+        children.push_back(std::move(n));
+    }
 
     if (children.size() == 0)
     {
@@ -136,9 +148,11 @@ Parser::parseLoop(std::vector<lexer::Token>::const_iterator &begin,
         auto nodes = std::vector<std::unique_ptr<Node>>();
 
         nodes.push_back(std::make_unique<LoopNode>(
-            LoopNode(symbols[0], symbols[1],
-                     Context(initial->GetContext().StartPos(), (begin - 1)->GetContext().EndPos()),
-                     std::move(children))));
+            LoopNode(
+                symbols[0],
+                symbols[1],
+                Context(initial->GetContext().StartPos(), (begin - 1)->GetContext().EndPos()),
+                children)));
 
         return nodes;
     }
@@ -238,6 +252,7 @@ Parser::parseNodes(std::vector<lexer::Token>::const_iterator &begin,
                 nodes.insert(nodes.end(),
                              std::make_move_iterator(blockNodes.begin()),
                              std::make_move_iterator(blockNodes.end()));
+
                 it = nextNext - 1;
                 continue;
             }

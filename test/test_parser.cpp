@@ -14,23 +14,11 @@ using car::lexer::Token;
 using car::lexer::TokenFactory;
 using car::parser::Node;
 using car::parser::Parser;
+using car::parser::ParserOptions;
 using car::parser::PrintingVisitor;
 
 namespace car
 {
-
-TEST_CASE("Parser::parse", "[parser]")
-{
-    std::stringstream error;
-    std::stringstream lexerError;
-    std::stringstream dump;
-    auto tokens = std::vector<Token>();
-    std::vector<std::unique_ptr<Node>> nodes;
-    auto lexer = Lexer();
-    auto parser = Parser();
-    auto visitor = PrintingVisitor(dump);
-    std::string expectedDump;
-    std::string expectedError;
 
 #define ASSERT_RESULTS()                        \
     {                                           \
@@ -53,6 +41,20 @@ TEST_CASE("Parser::parse", "[parser]")
             REQUIRE(nodesDump == expectedDump); \
         }                                       \
     }
+
+TEST_CASE("Parser::parse no symbol check", "[parser]")
+{
+    std::stringstream error;
+    std::stringstream lexerError;
+    std::stringstream dump;
+    auto tokens = std::vector<Token>();
+    std::vector<std::unique_ptr<Node>> nodes;
+    auto lexer = Lexer();
+    auto symbols = std::unordered_set<std::string>();
+    auto parser = Parser(ParserOptions(symbols));
+    auto visitor = PrintingVisitor(dump);
+    std::string expectedDump;
+    std::string expectedError;
 
     SECTION("No nodes")
     {
@@ -622,7 +624,80 @@ TEST_CASE("Parser::parse", "[parser]")
         expectedError = "Expected EndDirective instead of [Text at [30, 34)] 'nope'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
+}
 
-} // namespace car
+TEST_CASE("Parser::parse symbol check", "[parser]")
+{
+    std::stringstream error;
+    std::stringstream lexerError;
+    std::stringstream dump;
+    auto tokens = std::vector<Token>();
+    std::vector<std::unique_ptr<Node>> nodes;
+    auto lexer = Lexer();
+    auto options = ParserOptions(std::unordered_set<std::string>({"validus"}));
+    auto parser = Parser(options);
+    auto visitor = PrintingVisitor(dump);
+    std::string expectedDump;
+    std::string expectedError;
+
+    SECTION("Unknown symbol")
+    {
+        std::stringstream input("{{x}}");
+        lexer.lex(input, tokens, lexerError);
+        auto errors = lexerError.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 1);
+
+        expectedDump = "";
+        expectedError = "";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("Known symbol")
+    {
+        std::stringstream input("{{validus}}");
+        lexer.lex(input, tokens, lexerError);
+        auto errors = lexerError.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 1);
+
+        for (auto const &n : nodes)
+        {
+            n->accept(visitor);
+        }
+
+        expectedDump = "[PrintNode symbol`validus`]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("Known symbol in loop")
+    {
+        std::stringstream input("{{#loop validus validus}}QED{{/loop}}");
+        lexer.lex(input, tokens, lexerError);
+        auto errors = lexerError.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 1);
+
+        for (auto const &n : nodes)
+        {
+            n->accept(visitor);
+        }
+
+        expectedDump = "[LoopNode `validus` in `validus` depth`1` {\n  [TextNode `QED`]\n} depth`1`\n";
+        ASSERT_RESULTS()
+    }
+}
 
 } // namespace car
