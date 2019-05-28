@@ -9,20 +9,20 @@ void PrintingVisitor::indent()
 {
     for (int i = 0; i < this->loopDepth; i++)
     {
-        output << "  ";
+        this->output << "  ";
     }
 }
 
 void PrintingVisitor::visit(const TextNode &n)
 {
     this->indent();
-    output << "[TextNode `" << n.Text() << "`]" << std::endl;
+    this->output << "[TextNode `" << n.Text() << "`]" << std::endl;
 }
 
 void PrintingVisitor::visit(const PrintNode &n)
 {
     this->indent();
-    output << "[PrintNode symbol`" << n.Symbol() << "`]" << std::endl;
+    this->output << "[PrintNode symbol`" << n.Symbol() << "`]" << std::endl;
 }
 
 void PrintingVisitor::visit(const LoopNode &n, VisitReason reason)
@@ -32,10 +32,10 @@ void PrintingVisitor::visit(const LoopNode &n, VisitReason reason)
     case VisitReason::Enter:
         this->indent();
         loopDepth++;
-        output << "[LoopNode `" << n.ElementSymbol() << "` in `" << n.RangeSymbol() << "` depth`" << loopDepth << "` {" << std::endl;
+        this->output << "[LoopNode `" << n.ElementSymbol() << "` in `" << n.RangeSymbol() << "` depth`" << loopDepth << "` {" << std::endl;
         break;
     case VisitReason::Exit:
-        output << "} depth`" << loopDepth << "`" << std::endl;
+        this->output << "} depth`" << loopDepth << "`" << std::endl;
         loopDepth--;
         break;
     }
