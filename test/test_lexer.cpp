@@ -19,56 +19,75 @@ TEST_CASE("Lexer::Token", "[lexer]")
     std::stringstream output;
     std::string expected;
 
+#define ASSERT_RESULTS()            \
+    auto serialized = output.str(); \
+    REQUIRE(serialized == expected);
+
     SECTION("StartDirective")
     {
         output << TokenFactory::newStartDirective(Context(0, 1000));
         expected = "[StartDirective at [0, 1000)]";
+
+        ASSERT_RESULTS()
     }
 
     SECTION("EndDirective")
     {
         output << TokenFactory::newEndDirective(Context(0, 2));
         expected = "[EndDirective at [0, 2)]";
+
+        ASSERT_RESULTS()
     }
 
     SECTION("StartBlock")
     {
         output << TokenFactory::newStartBlock(Context(0, 1));
         expected = "[StartBlock at [0, 1)]";
+
+        ASSERT_RESULTS()
     }
 
     SECTION("EndBlock")
     {
         output << TokenFactory::newEndBlock(Context(0, 1));
         expected = "[EndBlock at [0, 1)]";
+
+        ASSERT_RESULTS()
     }
 
     SECTION("Text")
     {
         output << TokenFactory::newText("p", Context(0, 1));
         expected = "[Text at [0, 1)] 'p'";
+
+        ASSERT_RESULTS()
     }
 
     SECTION("Keyword")
     {
         output << TokenFactory::newKeyword("p", Context(0, 1));
         expected = "[Keyword at [0, 1)] 'p'";
+
+        ASSERT_RESULTS()
     }
 
     SECTION("Symbol")
     {
         output << TokenFactory::newSymbol("p", Context(0, 1));
         expected = "[Symbol at [0, 1)] 'p'";
+
+        ASSERT_RESULTS()
     }
 
     SECTION("unsupported")
     {
         output << Token((Token::Type)9999, Context(0, 1));
         expected = "[#unsupported token type# at [0, 1)]";
+
+        ASSERT_RESULTS()
     }
 
-    auto serialized = output.str();
-    REQUIRE(serialized == expected);
+#undef ASSERT_RESULTS
 }
 
 TEST_CASE("Lexer::lex", "[lexer]")
@@ -77,6 +96,17 @@ TEST_CASE("Lexer::lex", "[lexer]")
     auto lexer = Lexer();
     auto tokens = std::vector<Token>();
     std::string expectedErrors;
+
+#define ASSERT_RESULTS()                   \
+    auto errors = error.str();             \
+    if (expectedErrors.size() == 0)        \
+    {                                      \
+        REQUIRE(errors.size() == 0);       \
+    }                                      \
+    else                                   \
+    {                                      \
+        REQUIRE(errors == expectedErrors); \
+    }
 
     SECTION("Text single char")
     {
@@ -87,6 +117,8 @@ TEST_CASE("Lexer::lex", "[lexer]")
             TokenFactory::newText("p", Context(0, 1)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
     }
 
     SECTION("Text brace")
@@ -98,6 +130,8 @@ TEST_CASE("Lexer::lex", "[lexer]")
             TokenFactory::newText("{q", Context(0, 2)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
     }
 
     SECTION("Text")
@@ -109,6 +143,8 @@ TEST_CASE("Lexer::lex", "[lexer]")
             TokenFactory::newText("lorem ipsum ", Context(0, 12)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
     }
 
     SECTION("StartDirective")
@@ -121,6 +157,8 @@ TEST_CASE("Lexer::lex", "[lexer]")
             TokenFactory::newStartDirective(Context(0, 2)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
     }
 
     SECTION("StartDirective StartBlock")
@@ -134,6 +172,8 @@ TEST_CASE("Lexer::lex", "[lexer]")
             TokenFactory::newStartBlock(Context(2, 3)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
     }
 
     SECTION("StartDirective StartBlock EndDirective")
@@ -148,6 +188,8 @@ TEST_CASE("Lexer::lex", "[lexer]")
             TokenFactory::newEndDirective(Context(6, 8)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
     }
 
     SECTION("StartDirective EndBlock EndDirective")
@@ -162,6 +204,8 @@ TEST_CASE("Lexer::lex", "[lexer]")
             TokenFactory::newEndDirective(Context(6, 8)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
     }
 
     SECTION("StartDirective Symbol EndDirective")
@@ -175,6 +219,8 @@ TEST_CASE("Lexer::lex", "[lexer]")
             TokenFactory::newEndDirective(Context(3, 5)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
     }
 
     SECTION("StartDirective Symbol")
@@ -188,6 +234,8 @@ TEST_CASE("Lexer::lex", "[lexer]")
             TokenFactory::newSymbol("x", Context(-2, -1)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
     }
 
     SECTION("StartDirective StartBlock Symbol EndDirective")
@@ -203,6 +251,8 @@ TEST_CASE("Lexer::lex", "[lexer]")
             TokenFactory::newEndDirective(Context(13, 15)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
     }
 
     SECTION("StartDirective StartBlock Keyword")
@@ -217,6 +267,8 @@ TEST_CASE("Lexer::lex", "[lexer]")
             TokenFactory::newKeyword("mop", Context(3, -1)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
     }
 
     SECTION("StartDirective StartBlock Keyword error")
@@ -232,6 +284,8 @@ TEST_CASE("Lexer::lex", "[lexer]")
             TokenFactory::newText("}x", Context(6, 8)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
     }
 
     SECTION("StartDirective StartBlock Keyword Symbol")
@@ -248,6 +302,8 @@ TEST_CASE("Lexer::lex", "[lexer]")
             TokenFactory::newEndDirective(Context(11, 13)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
     }
 
     SECTION("StartDirective StartBlock Keyword space")
@@ -266,6 +322,8 @@ TEST_CASE("Lexer::lex", "[lexer]")
 
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
     }
 
     SECTION("loop")
@@ -281,6 +339,8 @@ Last line.)");
 
         std::vector<Token> expectedTokens = {};
         REQUIRE(tokens.size() == 24);
+
+        ASSERT_RESULTS()
     }
 
     SECTION("lexers gonna lex")
@@ -308,18 +368,9 @@ Last line.)");
             TokenFactory::newEndDirective(Context(54, 56)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
     };
-
-    auto errors = error.str();
-
-    if (expectedErrors.size() == 0)
-    {
-        REQUIRE(errors.size() == 0);
-    }
-    else
-    {
-        REQUIRE(errors == expectedErrors);
-    }
 }
 
 } // namespace car
