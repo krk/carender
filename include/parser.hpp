@@ -111,14 +111,24 @@ class PrintingVisitor : public Visitor
 public:
     PrintingVisitor(std::ostream &output) : output(output), loopDepth(0) {}
 
+    void indent()
+    {
+        for (int i = 0; i < this->loopDepth; i++)
+        {
+            output << "  ";
+        }
+    }
+
     void visit(const TextNode &n) override
     {
-        output << "[TextNode `" << n.Text() << "`]";
+        this->indent();
+        output << "[TextNode `" << n.Text() << "`]" << std::endl;
     }
 
     void visit(const PrintNode &n) override
     {
-        output << "[PrintNode symbol`" << n.Symbol() << "`]";
+        this->indent();
+        output << "[PrintNode symbol`" << n.Symbol() << "`]" << std::endl;
     }
 
     void visit(const LoopNode &n, VisitReason reason) override
@@ -126,17 +136,12 @@ public:
         switch (reason)
         {
         case VisitReason::Enter:
+            this->indent();
             loopDepth++;
-            output << "[LoopNode `" << n.ElementSymbol() << "` in `" << n.RangeSymbol() << "` depth`" << loopDepth << "` {";
-
-            for (auto const &child : n.Children())
-            {
-                child->accept(*this);
-            }
-
+            output << "[LoopNode `" << n.ElementSymbol() << "` in `" << n.RangeSymbol() << "` depth`" << loopDepth << "` {" << std::endl;
             break;
         case VisitReason::Exit:
-            output << "} depth`" << loopDepth << "`";
+            output << "} depth`" << loopDepth << "`" << std::endl;
             loopDepth--;
             break;
         }
@@ -158,10 +163,21 @@ private:
                                                                      const std::vector<lexer::Token>::const_iterator end,
                                                                      std::ostream &error) const;
 
-    std::vector<std::unique_ptr<Node>>
-    parseNodes(std::vector<lexer::Token>::const_iterator &begin,
+    std::vector<std::string>
+    parseSymbols(std::vector<lexer::Token>::const_iterator &begin,
+                 const std::vector<lexer::Token>::const_iterator end,
+                 int count,
+                 std::ostream &error) const;
+
+    bool
+    parseExact(std::vector<lexer::Token>::const_iterator &begin,
                const std::vector<lexer::Token>::const_iterator end,
-               std::ostream &error) const;
+               lexer::Token::Type type,
+               std::string value = "") const;
+
+    std::vector<std::unique_ptr<Node>> parseNodes(std::vector<lexer::Token>::const_iterator &begin,
+                                                  const std::vector<lexer::Token>::const_iterator end,
+                                                  std::ostream &error) const;
 
     std::vector<std::unique_ptr<Node>>
     parseBlock(std::vector<lexer::Token>::const_iterator &begin,

@@ -136,7 +136,7 @@ TEST_CASE("Parser::parse", "[parser]")
             n->accept(visitor);
         }
 
-        expectedDump = "[TextNode `dinle`]";
+        expectedDump = "[TextNode `dinle`]\n";
     }
 
     SECTION("PrintNode")
@@ -156,7 +156,7 @@ TEST_CASE("Parser::parse", "[parser]")
             n->accept(visitor);
         }
 
-        expectedDump = "[PrintNode symbol`x`]";
+        expectedDump = "[PrintNode symbol`x`]\n";
     }
 
     SECTION("StartBlock Keyword")
@@ -178,6 +178,110 @@ TEST_CASE("Parser::parse", "[parser]")
 
         expectedDump = "";
         expectedError = "Syntax error: Unsupported keyword `cmd` at [3, 6)\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+    }
+
+    SECTION("Loop no symbols")
+    {
+        std::stringstream input("{{#loop}}");
+        lexer.lex(input, tokens, error);
+        auto errors = error.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        for (auto const &n : nodes)
+        {
+            n->accept(visitor);
+        }
+
+        expectedDump = "";
+        expectedError = "Syntax error: Expected symbol instead of [EndDirective at [7, 9)]\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+    }
+
+    SECTION("Loop one symbol")
+    {
+        std::stringstream input("{{#loop range1}}");
+        lexer.lex(input, tokens, error);
+        auto errors = error.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        for (auto const &n : nodes)
+        {
+            n->accept(visitor);
+        }
+
+        expectedDump = "";
+        expectedError = "Syntax error: Expected symbol instead of [EndDirective at [14, 16)]\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+    }
+
+    SECTION("Loop")
+    {
+        std::stringstream input("{{#loop range1 elem}}");
+        lexer.lex(input, tokens, error);
+        auto errors = error.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        for (auto const &n : nodes)
+        {
+            n->accept(visitor);
+        }
+
+        expectedDump = "";
+        expectedError = "Syntax error: LoopNode must have children.\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+    }
+
+    SECTION("Loop Text child, no end")
+    {
+        std::stringstream input("{{#loop range1 elem}}ABC");
+        lexer.lex(input, tokens, error);
+        auto errors = error.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        for (auto const &n : nodes)
+        {
+            n->accept(visitor);
+        }
+
+        expectedDump = "";
+        expectedError = "Syntax error: Unexpected EOF after [Text at [21, 24)] 'ABC'\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+    }
+
+    SECTION("Loop Text child, end")
+    {
+        std::stringstream input("{{#loop range1 elem}}ABC{{/loop}}");
+        lexer.lex(input, tokens, error);
+        auto errors = error.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 1);
+
+        for (auto const &n : nodes)
+        {
+            n->accept(visitor);
+        }
+
+        expectedDump = "[LoopNode `elem` in `range1` depth`1` {\n  [TextNode `ABC`]\n} depth`1`\n";
     }
 
     auto errors = error.str();

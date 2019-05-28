@@ -12,26 +12,163 @@ namespace car
 namespace parser
 {
 
+bool Parser::parseExact(std::vector<lexer::Token>::const_iterator &begin,
+                        const std::vector<lexer::Token>::const_iterator end,
+                        Type type,
+                        std::string value) const
+{
+    if (begin == end)
+    {
+        return false;
+    }
+
+    if (begin->GetType() == type && begin->GetValue() == value)
+    {
+        begin++;
+        return true;
+    }
+
+    return false;
+}
+
+std::vector<std::string>
+Parser::parseSymbols(std::vector<lexer::Token>::const_iterator &begin,
+                     const std::vector<lexer::Token>::const_iterator end,
+                     int count,
+                     std::ostream &error) const
+{
+    auto symbols = std::vector<std::string>();
+    int seen = 0;
+    for (auto &it = begin; it != end && seen < count; it++)
+    {
+        switch (it->GetType())
+        {
+        case Type::Symbol:
+        {
+            symbols.push_back(it->GetValue());
+            seen++;
+            break;
+        }
+        default:
+            error << "Syntax error: Expected symbol instead of " << *it << std::endl;
+            goto fail;
+        }
+    }
+
+    if (seen != count)
+    {
+        error << "Syntax error: Expected " << count << " symbols instead of " << seen << std::endl;
+        goto fail;
+    }
+
+    // Next symbol must be an EndDirective.
+    if (begin == end)
+    {
+        error << "Syntax error: Unexpected EOF after " << *(begin - 1) << std::endl;
+        goto fail;
+    }
+
+    if (begin->GetType() != Type::EndDirective)
+    {
+        error << "Syntax error: Expected EndDirective instead of " << *begin << std::endl;
+        goto fail;
+    }
+
+    return symbols;
+
+fail:
+    return {};
+}
+
 std::vector<std::unique_ptr<Node>>
 Parser::parseLoop(std::vector<lexer::Token>::const_iterator &begin,
                   const std::vector<lexer::Token>::const_iterator end,
                   std::ostream &error) const
 {
-    // {{#loop range element}} ... {{/loop}}
-    // Parse a loop block with its children and EndBlock.
+    std::vector<std::unique_ptr<Node>> children;
+    auto const initial = begin;
 
-    for (auto &it = begin; it != end; it++)
+    // {{#loop range element}} ... {{/loop}}
+    // Parse a single loop block with its children and EndBlock. `begin` will be at the first token after the Keyword.
+
+    auto symbols = this->parseSymbols(begin, end, 2, error);
+    if (symbols.size() != 2)
     {
-        switch (it->GetType())
-        {
-        case Type::Keyword:
-        {
-            break;
-        }
-        default:
-            break;
-        }
+        goto fail;
     }
+
+    if (!this->parseExact(begin, end, Type::EndDirective))
+    {
+        error << "Syntax error: Expected EndDirective instead of " << *begin << std::endl;
+        goto fail;
+    }
+
+    // Parse children.
+    children = this->parseNodes(begin, end, error);
+
+    if (children.size() == 0)
+    {
+        error << "Syntax error: LoopNode must have children." << std::endl;
+        goto fail;
+    }
+
+    // Parse StartDirective EndBlock Keyword EndDirective.
+    if (begin == end)
+    {
+        error << "Syntax error: Unexpected EOF after " << *(begin - 1) << std::endl;
+        goto fail;
+    }
+    if (!this->parseExact(begin, end, Type::StartDirective))
+    {
+        error << "Syntax error: Expected StartDirective instead of " << *begin << std::endl;
+        goto fail;
+    }
+
+    if (begin == end)
+    {
+        error << "Syntax error: Unexpected EOF after " << *(begin - 1) << std::endl;
+        goto fail;
+    }
+    if (!this->parseExact(begin, end, Type::EndBlock))
+    {
+        error << "Syntax error: Expected EndBlock instead of " << *begin << std::endl;
+        goto fail;
+    }
+
+    if (begin == end)
+    {
+        error << "Syntax error: Unexpected EOF after " << *(begin - 1) << std::endl;
+        goto fail;
+    }
+    if (!this->parseExact(begin, end, Type::Keyword, "loop"))
+    {
+        error << "Syntax error: Expected Keyword `loop` instead of " << *begin << std::endl;
+        goto fail;
+    }
+
+    if (begin == end)
+    {
+        error << "Syntax error: Unexpected EOF after " << *(begin - 1) << std::endl;
+        goto fail;
+    }
+    if (!this->parseExact(begin, end, Type::EndDirective))
+    {
+        error << "Syntax error: Expected EndDirective instead of " << *begin << std::endl;
+        goto fail;
+    }
+
+    // Return LoopNode.
+    {
+        auto nodes = std::vector<std::unique_ptr<Node>>();
+
+        nodes.push_back(std::make_unique<LoopNode>(LoopNode(symbols[0], symbols[1],
+                                                            Context(initial->GetContext().StartPos(), (begin - 1)->GetContext().EndPos()), std::move(children))));
+
+        return nodes;
+    }
+
+fail:
+    return {};
 }
 
 std::vector<std::unique_ptr<Node>>
@@ -121,6 +258,11 @@ Parser::parseNodes(std::vector<lexer::Token>::const_iterator &begin,
                              std::make_move_iterator(blockNodes.end()));
                 it = nextNext - 1;
                 continue;
+            }
+            case Type::EndBlock:
+            {
+                // EndBlock cannot be parsed in this method, parseBlock will handle it.
+                return nodes;
             }
             default:
             {
