@@ -66,7 +66,7 @@ TEST_CASE("Parser::parse", "[parser]")
         REQUIRE(nodes.size() == 0);
 
         expectedDump = "";
-        expectedError = "Syntax error: Unexpected EOF after [Symbol at [2, 3)] 'x'\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Unexpected EOF after [Symbol at [2, 3)] 'x'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -81,7 +81,7 @@ TEST_CASE("Parser::parse", "[parser]")
         REQUIRE(nodes.size() == 0);
 
         expectedDump = "";
-        expectedError = "Syntax error: Unexpected EOF after [StartDirective at [0, 2)]\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Unexpected EOF after [StartDirective at [0, 2)]\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -97,7 +97,7 @@ TEST_CASE("Parser::parse", "[parser]")
         REQUIRE(nodes.size() == 0);
 
         expectedDump = "";
-        expectedError = "Syntax error: Unexpected EOF after [Symbol at [2, 3)] 'x'\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Unexpected EOF after [Symbol at [2, 3)] 'x'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -114,7 +114,7 @@ TEST_CASE("Parser::parse", "[parser]")
         REQUIRE(nodes.size() == 0);
 
         expectedDump = "";
-        expectedError = "Syntax error: Expected EndDirective after [Symbol at [2, 3)] 'x'\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Expected EndDirective after [Symbol at [2, 3)] 'x'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -130,7 +130,7 @@ TEST_CASE("Parser::parse", "[parser]")
         REQUIRE(nodes.size() == 0);
 
         expectedDump = "";
-        expectedError = "Syntax error: Text or StartDirective expected instead of [StartDirective at [0, 2)]\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Text or StartDirective expected instead of [StartDirective at [0, 2)]\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -147,7 +147,7 @@ TEST_CASE("Parser::parse", "[parser]")
         REQUIRE(nodes.size() == 0);
 
         expectedDump = "";
-        expectedError = "Syntax error: Expected Keyword instead of [Text at [3, 6)] 'abc'\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Expected Keyword instead of [Text at [3, 6)] 'abc'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -162,7 +162,7 @@ TEST_CASE("Parser::parse", "[parser]")
         REQUIRE(nodes.size() == 0);
 
         expectedDump = "";
-        expectedError = "Syntax error: Cannot parse at [EndDirective at [0, 2)]\n";
+        expectedError = "Cannot parse at [EndDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -224,7 +224,7 @@ TEST_CASE("Parser::parse", "[parser]")
         }
 
         expectedDump = "";
-        expectedError = "Syntax error: Unsupported keyword `cmd` at [3, 6)\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Unsupported keyword `cmd` at [3, 6)\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -246,7 +246,7 @@ TEST_CASE("Parser::parse", "[parser]")
         }
 
         expectedDump = "";
-        expectedError = "Syntax error: Expected symbol instead of [EndDirective at [7, 9)]\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Expected symbol instead of [EndDirective at [7, 9)]\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -268,7 +268,7 @@ TEST_CASE("Parser::parse", "[parser]")
             n->accept(visitor);
         }
 
-        expectedError = "Syntax error: Expected 2 symbols instead of 1\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Expected 2 symbols instead of 1\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -291,7 +291,7 @@ TEST_CASE("Parser::parse", "[parser]")
             n->accept(visitor);
         }
 
-        expectedError = "Syntax error: Unexpected EOF after [Symbol at [11, 14)] 'def'\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Unexpected EOF after [Symbol at [11, 14)] 'def'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -315,7 +315,7 @@ TEST_CASE("Parser::parse", "[parser]")
             n->accept(visitor);
         }
 
-        expectedError = "Syntax error: Expected EndDirective instead of [Text at [15, 18)] 'zzz'\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Expected EndDirective instead of [Text at [15, 18)] 'zzz'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -339,7 +339,7 @@ TEST_CASE("Parser::parse", "[parser]")
             n->accept(visitor);
         }
 
-        expectedError = "Syntax error: Expected EndDirective instead of [EndDirective at [14, 16)] '###'\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Expected EndDirective instead of [EndDirective at [14, 16)] '###'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -361,7 +361,7 @@ TEST_CASE("Parser::parse", "[parser]")
         }
 
         expectedDump = "";
-        expectedError = "Syntax error: Expected symbol instead of [EndDirective at [14, 16)]\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Expected symbol instead of [EndDirective at [14, 16)]\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -383,7 +383,7 @@ TEST_CASE("Parser::parse", "[parser]")
         }
 
         expectedDump = "";
-        expectedError = "Syntax error: LoopNode must have children.\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "LoopNode must have children.\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -405,7 +405,7 @@ TEST_CASE("Parser::parse", "[parser]")
         }
 
         expectedDump = "";
-        expectedError = "Syntax error: Unexpected EOF after [Text at [21, 24)] 'ABC'\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Unexpected EOF after [Text at [21, 24)] 'ABC'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -452,7 +452,7 @@ TEST_CASE("Parser::parse", "[parser]")
             n->accept(visitor);
         }
 
-        expectedError = "Syntax error: Expected StartDirective instead of [Symbol at [23, 26)] 'inv'\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Expected StartDirective instead of [Symbol at [23, 26)] 'inv'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -479,7 +479,7 @@ TEST_CASE("Parser::parse", "[parser]")
             n->accept(visitor);
         }
 
-        expectedError = "Syntax error: Unexpected EOF after [Symbol at [24, 26)] 'inv'\nSyntax error: LoopNode must have children.\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Unexpected EOF after [Symbol at [24, 26)] 'inv'\nLoopNode must have children.\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -506,7 +506,7 @@ TEST_CASE("Parser::parse", "[parser]")
             n->accept(visitor);
         }
 
-        expectedError = "Syntax error: Expected EndBlock instead of [EndBlock at [24, 28)] '###'\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Expected EndBlock instead of [EndBlock at [24, 28)] '###'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -533,7 +533,7 @@ TEST_CASE("Parser::parse", "[parser]")
             n->accept(visitor);
         }
 
-        expectedError = "Syntax error: Unexpected EOF after [EndBlock at [24, 25)]\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Unexpected EOF after [EndBlock at [24, 25)]\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -561,7 +561,7 @@ TEST_CASE("Parser::parse", "[parser]")
             n->accept(visitor);
         }
 
-        expectedError = "Syntax error: Expected Keyword `loop` instead of [Keyword at [25, 29)] 'nope'\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Expected Keyword `loop` instead of [Keyword at [25, 29)] 'nope'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -589,7 +589,7 @@ TEST_CASE("Parser::parse", "[parser]")
             n->accept(visitor);
         }
 
-        expectedError = "Syntax error: Unexpected EOF after [Keyword at [25, 29)] 'loop'\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Unexpected EOF after [Keyword at [25, 29)] 'loop'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -618,7 +618,7 @@ TEST_CASE("Parser::parse", "[parser]")
             n->accept(visitor);
         }
 
-        expectedError = "Syntax error: Expected EndDirective instead of [Text at [30, 34)] 'nope'\nSyntax error: Cannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Expected EndDirective instead of [Text at [30, 34)] 'nope'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 

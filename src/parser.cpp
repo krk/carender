@@ -21,30 +21,30 @@ constexpr std::size_t string_length(
 
 // Merge these two when "if constexpr" is available.
 // If we merge them now, test coverage will not be 100%.
-#define PARSE_EXACT(type)                                                            \
-    if (begin == end)                                                                \
-    {                                                                                \
-        error << "Syntax error: Unexpected EOF after " << *(begin - 1) << std::endl; \
-        goto fail;                                                                   \
-    }                                                                                \
-    if (!this->parseExact(begin, (type), ""))                                        \
-    {                                                                                \
-        error << "Syntax error: Expected " << type;                                  \
-        error << " instead of " << *begin << std::endl;                              \
-        goto fail;                                                                   \
+#define PARSE_EXACT(type)                                              \
+    if (begin == end)                                                  \
+    {                                                                  \
+        error << "Unexpected EOF after " << *(begin - 1) << std::endl; \
+        goto fail;                                                     \
+    }                                                                  \
+    if (!this->parseExact(begin, (type), ""))                          \
+    {                                                                  \
+        error << "Expected " << type;                                  \
+        error << " instead of " << *begin << std::endl;                \
+        goto fail;                                                     \
     }
 
-#define PARSE_EXACT_2(type, value)                                                   \
-    if (begin == end)                                                                \
-    {                                                                                \
-        error << "Syntax error: Unexpected EOF after " << *(begin - 1) << std::endl; \
-        goto fail;                                                                   \
-    }                                                                                \
-    if (!this->parseExact(begin, (type), (value)))                                   \
-    {                                                                                \
-        error << "Syntax error: Expected " << type << " `" << value << "`";          \
-        error << " instead of " << *begin << std::endl;                              \
-        goto fail;                                                                   \
+#define PARSE_EXACT_2(type, value)                                     \
+    if (begin == end)                                                  \
+    {                                                                  \
+        error << "Unexpected EOF after " << *(begin - 1) << std::endl; \
+        goto fail;                                                     \
+    }                                                                  \
+    if (!this->parseExact(begin, (type), (value)))                     \
+    {                                                                  \
+        error << "Expected " << type << " `" << value << "`";          \
+        error << " instead of " << *begin << std::endl;                \
+        goto fail;                                                     \
     }
 
 bool Parser::parseExact(std::vector<lexer::Token>::const_iterator &begin,
@@ -79,14 +79,14 @@ Parser::parseSymbols(std::vector<lexer::Token>::const_iterator &begin,
             break;
         }
         default:
-            error << "Syntax error: Expected symbol instead of " << *it << std::endl;
+            error << "Expected symbol instead of " << *it << std::endl;
             goto fail;
         }
     }
 
     if (seen != count)
     {
-        error << "Syntax error: Expected " << count << " symbols instead of " << seen << std::endl;
+        error << "Expected " << count << " symbols instead of " << seen << std::endl;
         goto fail;
     }
 
@@ -121,7 +121,7 @@ Parser::parseLoop(std::vector<lexer::Token>::const_iterator &begin,
 
     if (children.size() == 0)
     {
-        error << "Syntax error: LoopNode must have children." << std::endl;
+        error << "LoopNode must have children." << std::endl;
         goto fail;
     }
 
@@ -164,7 +164,7 @@ Parser::parseBlock(std::vector<lexer::Token>::const_iterator &begin,
 
         if (pair == this->keywordParser.end())
         {
-            error << "Syntax error: Unsupported keyword `" << keyword << "` at " << it->GetContext() << std::endl;
+            error << "Unsupported keyword `" << keyword << "` at " << it->GetContext() << std::endl;
             goto fail;
         }
 
@@ -173,7 +173,7 @@ Parser::parseBlock(std::vector<lexer::Token>::const_iterator &begin,
         return (this->*parser)(it, end, error);
     }
 
-    error << "Syntax error: Expected Keyword instead of " << *it << std::endl;
+    error << "Expected Keyword instead of " << *it << std::endl;
 
 fail:
     return {};
@@ -196,7 +196,7 @@ Parser::parseNodes(std::vector<lexer::Token>::const_iterator &begin,
             auto next = it + 1;
             if (next == end)
             {
-                error << "Syntax error: Unexpected EOF after " << *it << std::endl;
+                error << "Unexpected EOF after " << *it << std::endl;
                 goto fail;
             }
 
@@ -208,13 +208,13 @@ Parser::parseNodes(std::vector<lexer::Token>::const_iterator &begin,
                 auto nextNext = next + 1;
                 if (nextNext == end)
                 {
-                    error << "Syntax error: Unexpected EOF after " << *next << std::endl;
+                    error << "Unexpected EOF after " << *next << std::endl;
                     goto fail;
                 }
 
                 if (nextNext->GetType() != Type::EndDirective)
                 {
-                    error << "Syntax error: Expected EndDirective after " << *next << std::endl;
+                    error << "Expected EndDirective after " << *next << std::endl;
                     goto fail;
                 }
 
@@ -248,7 +248,7 @@ Parser::parseNodes(std::vector<lexer::Token>::const_iterator &begin,
             }
             default:
             {
-                error << "Syntax error: Text or StartDirective expected instead of " << *it << std::endl;
+                error << "Text or StartDirective expected instead of " << *it << std::endl;
                 goto fail;
             }
             }
@@ -282,7 +282,7 @@ Parser::parse(const std::vector<lexer::Token> &tokens,
     auto nodes = parseNodes(begin, end, error);
     if (begin != end)
     {
-        error << "Syntax error: Cannot parse at " << *begin << std::endl;
+        error << "Cannot parse at " << *begin << std::endl;
         return {};
     }
     return nodes;
