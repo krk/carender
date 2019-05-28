@@ -53,8 +53,8 @@ Parser::parseNodes(std::vector<lexer::Token>::const_iterator begin,
                     goto fail;
                 }
 
-                nodes.push_back(std::make_unique<Node>(
-                    PrintNode(it->GetValue(),
+                nodes.push_back(std::make_unique<PrintNode>(
+                    PrintNode(next->GetValue(),
                               Context(it->GetContext().StartPos(), nextNext->GetContext().EndPos()))));
 
                 // We have already consumed the next two tokens.
@@ -82,7 +82,7 @@ Parser::parseNodes(std::vector<lexer::Token>::const_iterator begin,
         }
         case Type::Text:
             // TextNode.
-            nodes.push_back(std::make_unique<Node>(TextNode(it->GetValue(), it->GetContext())));
+            nodes.push_back(std::make_unique<TextNode>(TextNode(it->GetValue(), it->GetContext())));
             continue;
         default:
         {
