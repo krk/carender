@@ -1,6 +1,7 @@
-CC		:= clang++
-C_FLAGS := -std=c++14 -Wall -Wextra -g -MMD -MP -fsanitize=undefined -fsanitize=address -fsanitize=leak
-C_FLAGS_COVER := -std=c++14 -Wall -Wextra -g -fsanitize=undefined -fsanitize=address -fsanitize=leak -O0 --coverage -fno-exceptions -fno-inline
+CC		:= g++
+C_FLAGS := -std=c++14 -Wall -Wextra -g -MMD -MP -fsanitize=undefined -fsanitize=leak
+# TODO Use -fsanitize-address in C_FLAGS_COVER. -fsanitize=address changes behavior without reporting an compile-time error in test "Lexer::lex StartDirective StartBlock".
+C_FLAGS_COVER := -std=c++14 -Wall -Wextra -g -fsanitize=undefined -fsanitize=leak -O0 --coverage -fno-exceptions -fno-inline
 
 OBJ		:= obj
 BIN		:= bin
@@ -47,7 +48,6 @@ $(BIN)/$(TEST): $(LIB)/$(STATIC_LIB) $(SRCS_TEST)
 	$(CC) $(C_FLAGS) -I$(INCLUDE) -L$(LIB) $(SRCS_TEST) -o $@ -lcarender $(LIBRARIES)
 
 $(BIN)/$(TEST)-cover: $(LIB)/$(STATIC_LIB) $(SRCS_TEST)
-	echo ${DEPENDS}
 	$(CC) $(C_FLAGS_COVER) -I$(INCLUDE) -L$(LIB) $(SRCS_TEST) -o $@ -lcarender $(LIBRARIES)
 
 dirmake:
