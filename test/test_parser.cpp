@@ -6,6 +6,7 @@ using Catch::Matchers::Equals;
 #include "context.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
+#include "printingvisitor.hpp"
 
 using car::Context;
 using car::lexer::Lexer;

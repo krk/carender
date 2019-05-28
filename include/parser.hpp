@@ -106,52 +106,6 @@ private:
     std::vector<std::unique_ptr<Node>> children;
 };
 
-class PrintingVisitor : public Visitor
-{
-public:
-    PrintingVisitor(std::ostream &output) : output(output), loopDepth(0) {}
-
-    void indent()
-    {
-        for (int i = 0; i < this->loopDepth; i++)
-        {
-            output << "  ";
-        }
-    }
-
-    void visit(const TextNode &n) override
-    {
-        this->indent();
-        output << "[TextNode `" << n.Text() << "`]" << std::endl;
-    }
-
-    void visit(const PrintNode &n) override
-    {
-        this->indent();
-        output << "[PrintNode symbol`" << n.Symbol() << "`]" << std::endl;
-    }
-
-    void visit(const LoopNode &n, VisitReason reason) override
-    {
-        switch (reason)
-        {
-        case VisitReason::Enter:
-            this->indent();
-            loopDepth++;
-            output << "[LoopNode `" << n.ElementSymbol() << "` in `" << n.RangeSymbol() << "` depth`" << loopDepth << "` {" << std::endl;
-            break;
-        case VisitReason::Exit:
-            output << "} depth`" << loopDepth << "`" << std::endl;
-            loopDepth--;
-            break;
-        }
-    }
-
-private:
-    std::ostream &output;
-    int loopDepth;
-};
-
 class Parser
 {
 public:
