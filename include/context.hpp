@@ -12,6 +12,14 @@ public:
 
     friend std::ostream &operator<<(std::ostream &os, const Context &ctx);
 
+    Context &operator=(const Context &other)
+    {
+        this->startPos = other.startPos;
+        this->endPos = other.endPos;
+
+        return *this;
+    }
+
     inline bool operator==(const Context &rhs) const
     {
         return (startPos == rhs.startPos) && (endPos == rhs.endPos);

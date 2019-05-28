@@ -34,6 +34,15 @@ public:
     friend std::ostream &operator<<(std::ostream &os, const Token &tok);
     friend std::ostream &operator<<(std::ostream &os, const Token::Type &type);
 
+    Token &operator=(const Token &other)
+    {
+        this->type = other.type;
+        this->value = other.value;
+        this->context = other.context;
+
+        return *this;
+    }
+
     bool operator==(const Token &rhs) const
     {
         return (type == rhs.type) && (value == rhs.value) && (context == rhs.context);
@@ -49,9 +58,9 @@ public:
     const Context &GetContext() const { return this->context; }
 
 private:
-    const Type type;
-    const std::string value;
-    const Context context;
+    Type type;
+    std::string value;
+    Context context;
 };
 
 class TokenFactory

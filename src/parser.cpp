@@ -1,5 +1,6 @@
 #include <ostream>
 #include <memory>
+#include <functional>
 
 #include "lexer.hpp"
 #include "parser.hpp"
@@ -12,22 +13,67 @@ namespace parser
 {
 
 std::vector<std::unique_ptr<Node>>
-Parser::parseBlock(std::vector<lexer::Token>::const_iterator begin,
-                   std::vector<lexer::Token>::const_iterator end,
-                   std::ostream &error)
+Parser::parseLoop(std::vector<lexer::Token>::const_iterator &begin,
+                  const std::vector<lexer::Token>::const_iterator end,
+                  std::ostream &error) const
 {
-    // begin is StartBlock or EndBlock.
+    // {{#loop range element}} ... {{/loop}}
+    // Parse a loop block with its children and EndBlock.
+
+    for (auto &it = begin; it != end; it++)
+    {
+        switch (it->GetType())
+        {
+        case Type::Keyword:
+        {
+            break;
+        }
+        default:
+            break;
+        }
+    }
+}
+
+std::vector<std::unique_ptr<Node>>
+Parser::parseBlock(std::vector<lexer::Token>::const_iterator &begin,
+                   const std::vector<lexer::Token>::const_iterator end,
+                   std::ostream &error) const
+{
+    // Parse a single block including the corresponding EndBlock and EndDirective.
+
+    auto &it = begin;
+
+    // begin must be a Keyword.
+    if (it->GetType() == Type::Keyword)
+    {
+        auto keyword = it->GetValue();
+        auto pair = this->keywordParser.find(keyword);
+
+        if (pair == this->keywordParser.end())
+        {
+            error << "Syntax error: Unsupported keyword `" << keyword << "` at " << it->GetContext() << std::endl;
+            goto fail;
+        }
+
+        it++;
+        auto parser = pair->second;
+        return (this->*parser)(it, end, error);
+    }
+
+    error << "Syntax error: Expected Keyword instead of " << *it << std::endl;
+
+fail:
     return {};
 }
 
 std::vector<std::unique_ptr<Node>>
-Parser::parseNodes(std::vector<lexer::Token>::const_iterator begin,
-                   std::vector<lexer::Token>::const_iterator end,
-                   std::ostream &error)
+Parser::parseNodes(std::vector<lexer::Token>::const_iterator &begin,
+                   const std::vector<lexer::Token>::const_iterator end,
+                   std::ostream &error) const
 {
     auto nodes = std::vector<std::unique_ptr<Node>>();
 
-    for (auto it = begin; it != end; it++)
+    for (auto &it = begin; it != end; it++)
     {
         switch (it->GetType())
         {
@@ -37,7 +83,7 @@ Parser::parseNodes(std::vector<lexer::Token>::const_iterator begin,
             auto next = it + 1;
             if (next == end)
             {
-                error << "Syntax error: Unexpected EOF after " << *it;
+                error << "Syntax error: Unexpected EOF after " << *it << std::endl;
                 goto fail;
             }
 
@@ -49,7 +95,7 @@ Parser::parseNodes(std::vector<lexer::Token>::const_iterator begin,
                 auto nextNext = next + 1;
                 if (nextNext == end || nextNext->GetType() != Type::EndDirective)
                 {
-                    error << "Syntax error: Unexpected EOF after " << *it;
+                    error << "Syntax error: Unexpected EOF after " << *next << std::endl;
                     goto fail;
                 }
 
@@ -63,18 +109,22 @@ Parser::parseNodes(std::vector<lexer::Token>::const_iterator begin,
             }
             case Type::StartBlock:
             {
-                auto blockNodes = this->parseBlock(next, end, error);
+                auto nextNext = next + 1;
+                auto blockNodes = this->parseBlock(nextNext, end, error);
                 if (blockNodes.size() == 0)
                 {
                     goto fail;
                 }
                 nodes.reserve(nodes.size() + blockNodes.size());
-                // nodes.insert(nodes.end(), blockNodes.begin(), blockNodes.end());
+                nodes.insert(nodes.end(),
+                             std::make_move_iterator(blockNodes.begin()),
+                             std::make_move_iterator(blockNodes.end()));
+                it = nextNext - 1;
                 continue;
             }
             default:
             {
-                error << "Syntax error: Text or StartDirective expected instead of " << *it;
+                error << "Syntax error: Text or StartDirective expected instead of " << *it << std::endl;
                 goto fail;
             }
             }
@@ -86,8 +136,9 @@ Parser::parseNodes(std::vector<lexer::Token>::const_iterator begin,
             continue;
         default:
         {
-            error << "Syntax error: Text or StartDirective expected instead of " << *it;
-            goto fail;
+            // Return without error. If parsing is not complete, it will be handled by a caller.
+            // If the caller is Parser::parse, it will return an error in case of incomplete parse.
+            return nodes;
         }
         }
     }
@@ -95,15 +146,22 @@ Parser::parseNodes(std::vector<lexer::Token>::const_iterator begin,
     return nodes;
 
 fail:
-    nodes.clear();
-    return nodes;
+    return {};
 }
 
 std::vector<std::unique_ptr<Node>>
 Parser::parse(const std::vector<lexer::Token> &tokens,
               std::ostream &error)
 {
-    return parseNodes(tokens.begin(), tokens.end(), error);
+    auto begin = tokens.begin();
+    auto end = tokens.end();
+    auto nodes = parseNodes(begin, end, error);
+    if (begin != end)
+    {
+        error << "Syntax error: Cannot parse at " << *begin << std::endl;
+        return {};
+    }
+    return nodes;
 }
 
 } // namespace parser

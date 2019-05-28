@@ -40,7 +40,7 @@ public:
 protected:
     Node(Context ctx) : ctx(ctx) {}
 
-    Context ctx;
+    const Context ctx;
 };
 
 class PrintNode : public Node
@@ -56,7 +56,7 @@ public:
     const std::string &Symbol() const { return this->symbol; }
 
 private:
-    std::string symbol;
+    const std::string symbol;
 };
 
 class TextNode : public Node
@@ -154,15 +154,28 @@ public:
                                              std::ostream &error);
 
 private:
-    std::vector<std::unique_ptr<Node>>
-    parseNodes(std::vector<lexer::Token>::const_iterator begin,
-               std::vector<lexer::Token>::const_iterator end,
-               std::ostream &error);
+    typedef std::vector<std::unique_ptr<Node>> (Parser::*nodeParser)(std::vector<lexer::Token>::const_iterator &begin,
+                                                                     const std::vector<lexer::Token>::const_iterator end,
+                                                                     std::ostream &error) const;
 
     std::vector<std::unique_ptr<Node>>
-    parseBlock(std::vector<lexer::Token>::const_iterator begin,
-               std::vector<lexer::Token>::const_iterator end,
-               std::ostream &error);
+    parseNodes(std::vector<lexer::Token>::const_iterator &begin,
+               const std::vector<lexer::Token>::const_iterator end,
+               std::ostream &error) const;
+
+    std::vector<std::unique_ptr<Node>>
+    parseBlock(std::vector<lexer::Token>::const_iterator &begin,
+               const std::vector<lexer::Token>::const_iterator end,
+               std::ostream &error) const;
+
+    std::vector<std::unique_ptr<Node>>
+    parseLoop(std::vector<lexer::Token>::const_iterator &begin,
+              const std::vector<lexer::Token>::const_iterator end,
+              std::ostream &error) const;
+
+    std::unordered_map<std::string, nodeParser> keywordParser = {
+        {"loop", &Parser::parseLoop},
+    };
 };
 
 } // namespace parser
