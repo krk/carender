@@ -1,6 +1,6 @@
-CC		:= g++
-C_FLAGS := -std=c++14 -Wall -Wextra -g
-C_FLAGS_COVER := -std=c++14 -Wall -Wextra -g -O0 --coverage -fno-exceptions -fno-inline
+CC		:= clang++
+C_FLAGS := -std=c++14 -Wall -Wextra -g -MMD -MP -fsanitize=undefined -fsanitize=address -fsanitize=leak
+C_FLAGS_COVER := -std=c++14 -Wall -Wextra -g -fsanitize=undefined -fsanitize=address -fsanitize=leak -O0 --coverage -fno-exceptions -fno-inline
 
 OBJ		:= obj
 BIN		:= bin
@@ -29,17 +29,26 @@ clean: dirmake
 	$(RM) -rf $(BIN)
 	$(RM) -rf $(LIB)
 
-$(LIB)/$(STATIC_LIB): $(patsubst $(SRC)/%.cpp,$(OBJ)/%.o,$(wildcard $(SRC)/*.cpp))
+DEPENDS := $(patsubst $(SRC)/%.cpp,$(OBJ)/%.d,$(wildcard $(SRC)/*.cpp))
+
+SRCS := $(patsubst $(SRC)/%.cpp,$(OBJ)/%.o,$(wildcard $(SRC)/*.cpp))
+SRCS_TEST := $(patsubst $(TEST)/%.cpp,$(OBJ)/%.o,$(wildcard $(TEST)/*.cpp))
+
+$(LIB)/$(STATIC_LIB): $(SRCS)
 	ar -r -o $@ $^
 
 $(OBJ)/%.o: $(SRC)/%.cpp
-	$(CC) $(C_FLAGS) -c -I$(INCLUDE) -L$(LIB) $^ -o $@ $(LIBRARIES)
+	$(CC) $(C_FLAGS) -c -I$(INCLUDE) -L$(LIB) $< -o $@ $(LIBRARIES)
 
-$(BIN)/$(TEST): $(LIB)/$(STATIC_LIB) $(TEST)/*
-	$(CC) $(C_FLAGS) -I$(INCLUDE) -L$(LIB) $^ -o $@ -lcarender $(LIBRARIES)
+$(OBJ)/%.o: $(TEST)/%.cpp
+	$(CC) $(C_FLAGS) -c -I$(INCLUDE) -L$(LIB) $< -o $@ $(LIBRARIES)
 
-$(BIN)/$(TEST)-cover: $(TEST)/* $(SRC)/*
-	$(CC) $(C_FLAGS_COVER) -I$(INCLUDE) -L$(LIB) $^ -o $@ -lcarender $(LIBRARIES)
+$(BIN)/$(TEST): $(LIB)/$(STATIC_LIB) $(SRCS_TEST)
+	$(CC) $(C_FLAGS) -I$(INCLUDE) -L$(LIB) $(SRCS_TEST) -o $@ -lcarender $(LIBRARIES)
+
+$(BIN)/$(TEST)-cover: $(LIB)/$(STATIC_LIB) $(SRCS_TEST)
+	echo ${DEPENDS}
+	$(CC) $(C_FLAGS_COVER) -I$(INCLUDE) -L$(LIB) $(SRCS_TEST) -o $@ -lcarender $(LIBRARIES)
 
 dirmake:
 	@mkdir -p $(OBJ)
@@ -58,3 +67,5 @@ cover: dirmake $(BIN)/$(TEST)-cover
 
 cover-show: cover
 	firefox test_coverage/index.html
+
+-include ${DEPENDS}
