@@ -12,16 +12,45 @@ namespace car
 namespace parser
 {
 
-bool Parser::parseExact(std::vector<lexer::Token>::const_iterator &begin,
-                        const std::vector<lexer::Token>::const_iterator end,
-                        Type type,
-                        std::string value) const
+template <std::size_t S>
+constexpr std::size_t string_length(
+    char const (&)[S])
 {
-    if (begin == end)
-    {
-        return false;
+    return S - 1;
+}
+
+// Merge these two when "if constexpr" is available.
+// If we merge them now, test coverage will not be 100%.
+#define PARSE_EXACT(type)                                                            \
+    if (begin == end)                                                                \
+    {                                                                                \
+        error << "Syntax error: Unexpected EOF after " << *(begin - 1) << std::endl; \
+        goto fail;                                                                   \
+    }                                                                                \
+    if (!this->parseExact(begin, (type), ""))                                        \
+    {                                                                                \
+        error << "Syntax error: Expected " << type;                                  \
+        error << " instead of " << *begin << std::endl;                              \
+        goto fail;                                                                   \
     }
 
+#define PARSE_EXACT_2(type, value)                                                   \
+    if (begin == end)                                                                \
+    {                                                                                \
+        error << "Syntax error: Unexpected EOF after " << *(begin - 1) << std::endl; \
+        goto fail;                                                                   \
+    }                                                                                \
+    if (!this->parseExact(begin, (type), (value)))                                   \
+    {                                                                                \
+        error << "Syntax error: Expected " << type << " `" << value << "`";          \
+        error << " instead of " << *begin << std::endl;                              \
+        goto fail;                                                                   \
+    }
+
+bool Parser::parseExact(std::vector<lexer::Token>::const_iterator &begin,
+                        const Type type,
+                        const std::string &value) const
+{
     if (begin->GetType() == type && begin->GetValue() == value)
     {
         begin++;
@@ -62,17 +91,7 @@ Parser::parseSymbols(std::vector<lexer::Token>::const_iterator &begin,
     }
 
     // Next symbol must be an EndDirective.
-    if (begin == end)
-    {
-        error << "Syntax error: Unexpected EOF after " << *(begin - 1) << std::endl;
-        goto fail;
-    }
-
-    if (begin->GetType() != Type::EndDirective)
-    {
-        error << "Syntax error: Expected EndDirective instead of " << *begin << std::endl;
-        goto fail;
-    }
+    PARSE_EXACT(Type::EndDirective)
 
     return symbols;
 
@@ -97,12 +116,6 @@ Parser::parseLoop(std::vector<lexer::Token>::const_iterator &begin,
         goto fail;
     }
 
-    if (!this->parseExact(begin, end, Type::EndDirective))
-    {
-        error << "Syntax error: Expected EndDirective instead of " << *begin << std::endl;
-        goto fail;
-    }
-
     // Parse children.
     children = this->parseNodes(begin, end, error);
 
@@ -113,56 +126,19 @@ Parser::parseLoop(std::vector<lexer::Token>::const_iterator &begin,
     }
 
     // Parse StartDirective EndBlock Keyword EndDirective.
-    if (begin == end)
-    {
-        error << "Syntax error: Unexpected EOF after " << *(begin - 1) << std::endl;
-        goto fail;
-    }
-    if (!this->parseExact(begin, end, Type::StartDirective))
-    {
-        error << "Syntax error: Expected StartDirective instead of " << *begin << std::endl;
-        goto fail;
-    }
-
-    if (begin == end)
-    {
-        error << "Syntax error: Unexpected EOF after " << *(begin - 1) << std::endl;
-        goto fail;
-    }
-    if (!this->parseExact(begin, end, Type::EndBlock))
-    {
-        error << "Syntax error: Expected EndBlock instead of " << *begin << std::endl;
-        goto fail;
-    }
-
-    if (begin == end)
-    {
-        error << "Syntax error: Unexpected EOF after " << *(begin - 1) << std::endl;
-        goto fail;
-    }
-    if (!this->parseExact(begin, end, Type::Keyword, "loop"))
-    {
-        error << "Syntax error: Expected Keyword `loop` instead of " << *begin << std::endl;
-        goto fail;
-    }
-
-    if (begin == end)
-    {
-        error << "Syntax error: Unexpected EOF after " << *(begin - 1) << std::endl;
-        goto fail;
-    }
-    if (!this->parseExact(begin, end, Type::EndDirective))
-    {
-        error << "Syntax error: Expected EndDirective instead of " << *begin << std::endl;
-        goto fail;
-    }
+    PARSE_EXACT(Type::StartDirective)
+    PARSE_EXACT(Type::EndBlock)
+    PARSE_EXACT_2(Type::Keyword, "loop")
+    PARSE_EXACT(Type::EndDirective)
 
     // Return LoopNode.
     {
         auto nodes = std::vector<std::unique_ptr<Node>>();
 
-        nodes.push_back(std::make_unique<LoopNode>(LoopNode(symbols[0], symbols[1],
-                                                            Context(initial->GetContext().StartPos(), (begin - 1)->GetContext().EndPos()), std::move(children))));
+        nodes.push_back(std::make_unique<LoopNode>(
+            LoopNode(symbols[0], symbols[1],
+                     Context(initial->GetContext().StartPos(), (begin - 1)->GetContext().EndPos()),
+                     std::move(children))));
 
         return nodes;
     }
@@ -230,9 +206,15 @@ Parser::parseNodes(std::vector<lexer::Token>::const_iterator &begin,
             {
                 // Symbol after directive without a block start/end is a PrintNode.
                 auto nextNext = next + 1;
-                if (nextNext == end || nextNext->GetType() != Type::EndDirective)
+                if (nextNext == end)
                 {
                     error << "Syntax error: Unexpected EOF after " << *next << std::endl;
+                    goto fail;
+                }
+
+                if (nextNext->GetType() != Type::EndDirective)
+                {
+                    error << "Syntax error: Expected EndDirective after " << *next << std::endl;
                     goto fail;
                 }
 
