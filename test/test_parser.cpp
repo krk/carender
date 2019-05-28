@@ -650,10 +650,10 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
 
         nodes = parser.parse(tokens, error);
 
-        REQUIRE(nodes.size() == 1);
+        REQUIRE(nodes.size() == 0);
 
         expectedDump = "";
-        expectedError = "";
+        expectedError = "Invalid symbol [Symbol at [2, 3)] 'x'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -675,6 +675,22 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
         }
 
         expectedDump = "[PrintNode symbol`validus`]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("Unknown symbol in loop")
+    {
+        std::stringstream input("{{#loop x x}}QED{{/loop}}");
+        lexer.lex(input, tokens, lexerError);
+        auto errors = lexerError.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedError = "Invalid symbol [Symbol at [8, 9)] 'x'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 

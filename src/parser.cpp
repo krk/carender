@@ -47,6 +47,14 @@ constexpr std::size_t string_length(
         goto fail;                                                     \
     }
 
+#define CHECK_SYMBOL(symbol, it)                                                     \
+    if (!this->options.ValidSymbols.empty() &&                                       \
+        this->options.ValidSymbols.find(symbol) == this->options.ValidSymbols.end()) \
+    {                                                                                \
+        error << "Invalid symbol " << *it << std::endl;                              \
+        goto fail;                                                                   \
+    }
+
 bool Parser::parseExact(std::vector<lexer::Token>::const_iterator &begin,
                         const Type type,
                         const std::string &value) const
@@ -75,13 +83,7 @@ Parser::parseSymbols(std::vector<lexer::Token>::const_iterator &begin,
         case Type::Symbol:
         {
             const auto &symbol = it->GetValue();
-
-            if (!this->options.ValidSymbols.empty() &&
-                this->options.ValidSymbols.find(symbol) == this->options.ValidSymbols.end())
-            {
-                error << "Invalid symbol " << *it << std::endl;
-                goto fail;
-            }
+            CHECK_SYMBOL(symbol, it)
 
             symbols.push_back(symbol);
             seen++;
@@ -232,8 +234,11 @@ Parser::parseNodes(std::vector<lexer::Token>::const_iterator &begin,
                     goto fail;
                 }
 
+                const auto &symbol = next->GetValue();
+                CHECK_SYMBOL(symbol, next)
+
                 nodes.push_back(std::make_unique<PrintNode>(
-                    PrintNode(next->GetValue(),
+                    PrintNode(symbol,
                               Context(it->GetContext().StartPos(), nextNext->GetContext().EndPos()))));
 
                 // We have already consumed the next two tokens.
