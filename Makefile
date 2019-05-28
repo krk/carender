@@ -47,8 +47,8 @@ $(OBJ)/%.o: $(TEST)/%.cpp
 $(BIN)/$(TEST): $(LIB)/$(STATIC_LIB) $(SRCS_TEST)
 	$(CC) $(C_FLAGS) -I$(INCLUDE) -L$(LIB) $(SRCS_TEST) -o $@ -lcarender $(LIBRARIES)
 
-$(BIN)/$(TEST)-cover: $(LIB)/$(STATIC_LIB) $(SRCS_TEST)
-	$(CC) $(C_FLAGS_COVER) -I$(INCLUDE) -L$(LIB) $(SRCS_TEST) -o $@ -lcarender $(LIBRARIES)
+$(BIN)/$(TEST)-cover: $(SRCS_TEST) $(SRC)/*.cpp
+	$(CC) $(C_FLAGS_COVER) -I$(INCLUDE) -L$(LIB) $(SRCS_TEST) $(SRC)/*.cpp -o $@ $(LIBRARIES)
 
 dirmake:
 	@mkdir -p $(OBJ)
