@@ -20,6 +20,7 @@ public:
     void visit(const TextNode &n) override;
     void visit(const PrintNode &n) override;
     void visit(const LoopNode &n) override;
+    void visit(const IfEqNode &n) override;
 
     virtual ~PrintingVisitor() = default;
 

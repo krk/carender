@@ -7,6 +7,7 @@
 
 #include "parser.hpp"
 
+using car::parser::IfEqNode;
 using car::parser::LoopNode;
 using car::parser::PrintNode;
 using car::parser::TextNode;
@@ -30,6 +31,7 @@ public:
     void visit(const TextNode &n) override;
     void visit(const PrintNode &n) override;
     void visit(const LoopNode &n) override;
+    void visit(const IfEqNode &n) override;
 
     bool HasError()
     {

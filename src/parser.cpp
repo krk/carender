@@ -2,6 +2,7 @@
 #include <memory>
 #include <functional>
 #include <algorithm>
+#include <string>
 
 #include "lexer.hpp"
 #include "parser.hpp"
@@ -81,6 +82,7 @@ std::vector<std::string>
 Parser::parseSymbols(std::vector<lexer::Token>::const_iterator &begin,
                      const std::vector<lexer::Token>::const_iterator end,
                      int count,
+                     bool checkAllSymbols,
                      std::vector<std::string> &declared,
                      std::ostream &error)
 {
@@ -93,7 +95,8 @@ Parser::parseSymbols(std::vector<lexer::Token>::const_iterator &begin,
         case Type::Symbol:
         {
             const auto &symbol = it->GetValue();
-            if (seen == 0)
+            // If checkAllSymbols is true, all symbols need to be declared.
+            if (checkAllSymbols || seen == 0)
             {
                 // Only first symbol is checked, subsequent symbols are interpreted as declarations.
                 CHECK_SYMBOL(symbol, it)
@@ -130,24 +133,27 @@ fail:
     return {};
 }
 
+template <typename NodeType, bool checkAllSymbols, char... keywordChars>
 std::vector<std::unique_ptr<Node>>
-Parser::parseLoop(std::vector<lexer::Token>::const_iterator &begin,
-                  const std::vector<lexer::Token>::const_iterator end,
-                  std::ostream &error)
+Parser::parseBlockWithTwoSymbols(std::vector<lexer::Token>::const_iterator &begin,
+                                 const std::vector<lexer::Token>::const_iterator end,
+                                 std::ostream &error)
 {
+    // {{#keyword symbol1 symbol2}} ... {{/keyword}}
+    auto keyword = std::string({keywordChars...});
     std::vector<std::shared_ptr<Node>> children;
     auto const initial = begin;
 
-    // {{#loop range element}} ... {{/loop}}
-    // Parse a single loop block with its children and EndBlock. `begin` will be at the first token after the Keyword.
-
     auto declared = std::vector<std::string>();
-    auto symbols = this->parseSymbols(begin, end, 2, declared, error);
+    auto symbols = this->parseSymbols(begin, end, 2, checkAllSymbols, declared, error);
     if (symbols.size() != 2)
     {
         goto fail;
     }
-    this->options.Symbols().insert(declared.begin(), declared.end());
+    if (!checkAllSymbols)
+    {
+        this->options.Symbols().insert(declared.begin(), declared.end());
+    }
 
     // Parse children.
     for (auto &n : this->parseNodes(begin, end, error))
@@ -157,37 +163,66 @@ Parser::parseLoop(std::vector<lexer::Token>::const_iterator &begin,
 
     if (children.size() == 0)
     {
-        error << "LoopNode must have children." << std::endl;
+        error << keyword << " node must have children." << std::endl;
         goto fail;
     }
 
     // Parse StartDirective EndBlock Keyword EndDirective.
     PARSE_EXACT(Type::StartDirective)
     PARSE_EXACT(Type::EndBlock)
-    PARSE_EXACT_2(Type::Keyword, "loop")
+    PARSE_EXACT_2(Type::Keyword, keyword)
     PARSE_EXACT(Type::EndDirective)
 
-    // Return LoopNode.
+    // Return NodeType.
     {
         auto nodes = std::vector<std::unique_ptr<Node>>();
 
-        nodes.push_back(std::make_unique<LoopNode>(
-            LoopNode(
+        nodes.push_back(std::make_unique<NodeType>(
+            NodeType(
                 symbols[0],
                 symbols[1],
                 Context(initial->GetContext().StartPos(), (begin - 1)->GetContext().EndPos()),
                 children)));
 
+        if (!checkAllSymbols)
+        {
+            for (const auto &symbol : declared)
+            {
+                this->options.Symbols().erase(symbol);
+            }
+        }
+
         return nodes;
     }
 
 fail:
-    for (const auto &symbol : declared)
+    if (!checkAllSymbols)
     {
-        this->options.Symbols().erase(symbol);
+        for (const auto &symbol : declared)
+        {
+            this->options.Symbols().erase(symbol);
+        }
     }
 
     return {};
+}
+
+std::vector<std::unique_ptr<Node>>
+Parser::parseIfEq(std::vector<lexer::Token>::const_iterator &begin,
+                  const std::vector<lexer::Token>::const_iterator end,
+                  std::ostream &error)
+{
+    // {{#ifeq symbol symbol}} ... {{/ifeq}}
+    return parseBlockWithTwoSymbols<IfEqNode, true, 'i', 'f', 'e', 'q'>(begin, end, error);
+}
+
+std::vector<std::unique_ptr<Node>>
+Parser::parseLoop(std::vector<lexer::Token>::const_iterator &begin,
+                  const std::vector<lexer::Token>::const_iterator end,
+                  std::ostream &error)
+{
+    // {{#loop range element}} ... {{/loop}}
+    return parseBlockWithTwoSymbols<LoopNode, false, 'l', 'o', 'o', 'p'>(begin, end, error);
 }
 
 std::vector<std::unique_ptr<Node>>

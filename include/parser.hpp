@@ -19,6 +19,7 @@ namespace parser
 class TextNode;
 class PrintNode;
 class LoopNode;
+class IfEqNode;
 
 class Visitor
 {
@@ -28,6 +29,7 @@ public:
     virtual void visit(const TextNode &n) = 0;
     virtual void visit(const PrintNode &n) = 0;
     virtual void visit(const LoopNode &n) = 0;
+    virtual void visit(const IfEqNode &n) = 0;
 };
 
 class Node
@@ -121,6 +123,46 @@ private:
     const std::vector<std::shared_ptr<Node>> children;
 };
 
+class IfEqNode : public Node
+{
+public:
+    virtual ~IfEqNode() = default;
+
+    IfEqNode(std::string leftSymbol, std::string rightSymbol, Context ctx)
+        : Node(ctx), leftSymbol(leftSymbol), rightSymbol(rightSymbol), children(std::vector<std::shared_ptr<Node>>())
+    {
+    }
+
+    IfEqNode(std::string leftSymbol, std::string rightSymbol, Context ctx, std::vector<std::shared_ptr<Node>> children)
+        : Node(ctx), leftSymbol(leftSymbol), rightSymbol(rightSymbol), children(children)
+    {
+    }
+
+    void accept(Visitor &v) override
+    {
+        v.visit(*this);
+    }
+
+    const std::string &LeftSymbol() const
+    {
+        return this->leftSymbol;
+    }
+    const std::string &RightSymbol() const
+    {
+        return this->rightSymbol;
+    }
+
+    const std::vector<std::shared_ptr<Node>> &Children() const
+    {
+        return this->children;
+    }
+
+private:
+    const std::string leftSymbol;
+    const std::string rightSymbol;
+    const std::vector<std::shared_ptr<Node>> children;
+};
+
 class ParserOptions
 {
 public:
@@ -155,6 +197,7 @@ private:
     parseSymbols(std::vector<lexer::Token>::const_iterator &begin,
                  const std::vector<lexer::Token>::const_iterator end,
                  int count,
+                 bool checkAllSymbols,
                  std::vector<std::string> &declared,
                  std::ostream &error);
 
@@ -172,13 +215,24 @@ private:
                const std::vector<lexer::Token>::const_iterator end,
                std::ostream &error);
 
+    template <typename NodeType, bool checkAllSymbols, char... keywordChars>
     std::vector<std::unique_ptr<Node>>
-    parseLoop(std::vector<lexer::Token>::const_iterator &begin,
+    parseBlockWithTwoSymbols(std::vector<lexer::Token>::const_iterator &begin,
+                             const std::vector<lexer::Token>::const_iterator end,
+                             std::ostream &error);
+
+    std::vector<std::unique_ptr<Node>> parseLoop(std::vector<lexer::Token>::const_iterator &begin,
+                                                 const std::vector<lexer::Token>::const_iterator end,
+                                                 std::ostream &error);
+
+    std::vector<std::unique_ptr<Node>>
+    parseIfEq(std::vector<lexer::Token>::const_iterator &begin,
               const std::vector<lexer::Token>::const_iterator end,
               std::ostream &error);
 
     std::unordered_map<std::string, nodeParser> keywordParser = {
         {"loop", &Parser::parseLoop},
+        {"ifeq", &Parser::parseIfEq},
     };
 
     ParserOptions options;

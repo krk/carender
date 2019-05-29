@@ -72,5 +72,37 @@ void Renderer::visit(const LoopNode &n)
     this->symbols.erase(element);
 }
 
+void Renderer::visit(const IfEqNode &n)
+{
+    if (this->hasError)
+    {
+        return;
+    }
+
+    auto leftSym = this->symbols.find(n.LeftSymbol());
+    if (leftSym == this->symbols.end())
+    {
+        this->hasError = true;
+        this->error << "Symbol not found: `" << n.LeftSymbol() << "`" << std::endl;
+        return;
+    }
+
+    auto rightSym = this->symbols.find(n.RightSymbol());
+    if (rightSym == this->symbols.end())
+    {
+        this->hasError = true;
+        this->error << "Symbol not found: `" << n.RightSymbol() << "`" << std::endl;
+        return;
+    }
+
+    if (leftSym->second == rightSym->second)
+    {
+        for (auto const &child : n.Children())
+        {
+            child->accept(*this);
+        }
+    }
+}
+
 } // namespace renderer
 } // namespace car

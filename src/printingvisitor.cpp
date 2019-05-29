@@ -40,5 +40,18 @@ void PrintingVisitor::visit(const LoopNode &n)
     this->loopDepth--;
 }
 
+void PrintingVisitor::visit(const IfEqNode &n)
+{
+    this->indent();
+    this->output << "[IfEqNode `" << n.LeftSymbol() << "` `" << n.RightSymbol() << "`] {" << std::endl;
+
+    for (auto const &child : n.Children())
+    {
+        child->accept(*this);
+    }
+
+    this->output << "}" << std::endl;
+}
+
 } // namespace parser
 } // namespace car
