@@ -156,6 +156,41 @@ TEST_CASE("Renderer", "[renderer]")
         expectedError = "Range symbol not found: `x`\n";
         ASSERT_RESULTS()
     }
+
+    SECTION("Renderers gonna rende")
+    {
+        rangeSymbols["bottles"] = {"99", "98", "97"};
+        rangeSymbols["hello"] = {"hi", "hello", "nihao"};
+        symbols["name"] = "Aragorn";
+
+        auto nodes = parseNodes(R"({{#loop hello h}}{{h}} {{name}}!
+{{#loop bottles count}}{{count}} bottles on the wall, take one out, pass it around,
+{{/loop}}
+{{/loop}}
+)",
+                                symbols, rangeSymbols);
+        auto renderer = Renderer(symbols, rangeSymbols, dump, error);
+        for (auto const &n : nodes)
+        {
+            n->accept(renderer);
+        }
+
+        expectedError = "";
+        expectedDump = R"(hi Aragorn!
+99 bottles on the wall, take one out, pass it around,
+98 bottles on the wall, take one out, pass it around,
+97 bottles on the wall, take one out, pass it around,
+hello Aragorn!
+99 bottles on the wall, take one out, pass it around,
+98 bottles on the wall, take one out, pass it around,
+97 bottles on the wall, take one out, pass it around,
+nihao Aragorn!
+99 bottles on the wall, take one out, pass it around,
+98 bottles on the wall, take one out, pass it around,
+97 bottles on the wall, take one out, pass it around,
+)";
+        ASSERT_RESULTS()
+    }
 }
 
 } // namespace car

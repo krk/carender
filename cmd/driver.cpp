@@ -46,7 +46,7 @@ bool Driver::Render(std::istream &input)
     }
 
     // Parse.
-    auto options = ParserOptions(std::unordered_set<std::string>({"validus"}));
+    auto options = ParserOptions(symbolNames);
     auto parser = Parser(options);
 
     auto nodes = parser.parse(tokens, error);

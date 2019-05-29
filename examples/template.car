@@ -1,0 +1,8 @@
+{{#loop hello h}}
+{{h}} {{name}}!
+{{/loop}}
+{{#loop bottles count}}
+  {{count}} bottles on the wall, take one out, pass it around,
+{{/loop}}
+
+Bye {{name}}.
