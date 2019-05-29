@@ -8,8 +8,6 @@
 
 using car::driver::Driver;
 
-const int MAX_VALUE_LEN = 1024;
-
 std::unordered_map<std::string, std::string>
 readSymbols(std::istream &input)
 {
