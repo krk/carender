@@ -69,6 +69,8 @@ bool Driver::Render(std::istream &input)
         this->error << "Driver cannot render." << std::endl;
         return false;
     }
+
+    return true;
 }
 
 } // namespace driver
