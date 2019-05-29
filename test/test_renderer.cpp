@@ -157,6 +157,189 @@ TEST_CASE("Renderer", "[renderer]")
         ASSERT_RESULTS()
     }
 
+    SECTION("IfEq Text - no symbols")
+    {
+        auto nodes = parseNodes("{{#ifeq x1 x2}}ABC{{/ifeq}}", symbols, rangeSymbols);
+        auto renderer = Renderer(symbols, rangeSymbols, dump, error);
+        for (auto const &n : nodes)
+        {
+            n->accept(renderer);
+        }
+
+        expectedError = "Symbol not found: `x1`\n";
+        expectedDump = "";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq Text")
+    {
+        symbols["x1"] = "42";
+        symbols["x2"] = "42";
+        auto nodes = parseNodes("{{#ifeq x1 x2}}ABC{{/ifeq}}", symbols, rangeSymbols);
+        auto renderer = Renderer(symbols, rangeSymbols, dump, error);
+        for (auto const &n : nodes)
+        {
+            n->accept(renderer);
+        }
+
+        expectedError = "";
+        expectedDump = "ABC";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq Text - empty")
+    {
+        symbols["x1"] = "nope";
+        symbols["x2"] = "42";
+        auto nodes = parseNodes("{{#ifeq x1 x2}}ABC{{/ifeq}}", symbols, rangeSymbols);
+        auto renderer = Renderer(symbols, rangeSymbols, dump, error);
+        for (auto const &n : nodes)
+        {
+            n->accept(renderer);
+        }
+
+        expectedError = "";
+        expectedDump = "";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq Text Symbol")
+    {
+        symbols["x1"] = "42";
+        symbols["x2"] = "42";
+        auto nodes = parseNodes("{{#ifeq x1 x2}}Let there be lux!{{/ifeq}}", symbols, rangeSymbols);
+        auto renderer = Renderer(symbols, rangeSymbols, dump, error);
+        for (auto const &n : nodes)
+        {
+            n->accept(renderer);
+        }
+
+        expectedError = "";
+        expectedDump = "Let there be lux!";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq Symbol not redefined")
+    {
+        symbols["x1"] = "42";
+        symbols["x2"] = "42";
+        std::vector<std::unique_ptr<Node>> nodes;
+        nodes.push_back(std::make_unique<PrintNode>(PrintNode("x1", Context(0, 1))));
+        nodes.push_back(std::make_unique<IfEqNode>(IfEqNode("x1", "x2", Context(10, 20))));
+
+        auto renderer = Renderer(symbols, rangeSymbols, dump, error);
+        for (auto const &n : nodes)
+        {
+            n->accept(renderer);
+        }
+
+        expectedError = "";
+        expectedDump = "42";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq and Print")
+    {
+        symbols["x"] = "42";
+        std::vector<std::unique_ptr<Node>> nodes;
+        nodes.push_back(std::make_unique<IfEqNode>(IfEqNode("x", "x", Context(1, 10))));
+        nodes.push_back(std::make_unique<PrintNode>(PrintNode("x", Context(12, 19))));
+
+        auto renderer = Renderer(symbols, rangeSymbols, dump, error);
+        for (auto const &n : nodes)
+        {
+            n->accept(renderer);
+        }
+
+        expectedDump = "42";
+        expectedError = "";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq - no rightSymbol")
+    {
+        symbols["x"] = "42";
+        std::vector<std::unique_ptr<Node>> nodes;
+        nodes.push_back(std::make_unique<IfEqNode>(IfEqNode("x", "x2", Context(1, 10))));
+
+        auto renderer = Renderer(symbols, rangeSymbols, dump, error);
+        for (auto const &n : nodes)
+        {
+            n->accept(renderer);
+        }
+
+        expectedDump = "";
+        expectedError = "Symbol not found: `x2`\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("Print - no symbol")
+    {
+        std::vector<std::unique_ptr<Node>> nodes;
+        nodes.push_back(std::make_unique<PrintNode>(PrintNode("x", Context(12, 19))));
+
+        auto renderer = Renderer(symbols, rangeSymbols, dump, error);
+        for (auto const &n : nodes)
+        {
+            n->accept(renderer);
+        }
+
+        expectedDump = "";
+        expectedError = "Symbol not found: `x`\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("Print - no symbol, Text")
+    {
+        std::vector<std::unique_ptr<Node>> nodes;
+        nodes.push_back(std::make_unique<PrintNode>(PrintNode("x", Context(2, 9))));
+        nodes.push_back(std::make_unique<TextNode>(TextNode("ABC", Context(12, 19))));
+
+        auto renderer = Renderer(symbols, rangeSymbols, dump, error);
+        for (auto const &n : nodes)
+        {
+            n->accept(renderer);
+        }
+
+        expectedDump = "";
+        expectedError = "Symbol not found: `x`\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("Print - no symbol, Loop")
+    {
+        std::vector<std::unique_ptr<Node>> nodes;
+        nodes.push_back(std::make_unique<PrintNode>(PrintNode("x", Context(2, 9))));
+        nodes.push_back(std::make_unique<LoopNode>(LoopNode("xs", "x", Context(10, 20))));
+
+        auto renderer = Renderer(symbols, rangeSymbols, dump, error);
+        for (auto const &n : nodes)
+        {
+            n->accept(renderer);
+        }
+
+        expectedDump = "";
+        expectedError = "Symbol not found: `x`\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("Print - no symbol, IfEq")
+    {
+        std::vector<std::unique_ptr<Node>> nodes;
+        nodes.push_back(std::make_unique<PrintNode>(PrintNode("x", Context(2, 9))));
+        nodes.push_back(std::make_unique<IfEqNode>(IfEqNode("x", "x2", Context(1, 10))));
+
+        auto renderer = Renderer(symbols, rangeSymbols, dump, error);
+        for (auto const &n : nodes)
+        {
+            n->accept(renderer);
+        }
+
+        expectedDump = "";
+        expectedError = "Symbol not found: `x`\n";
+        ASSERT_RESULTS()
+    }
+
     SECTION("Renderers gonna rende")
     {
         rangeSymbols["bottles"] = {"99", "98", "97"};

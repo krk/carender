@@ -103,7 +103,7 @@ const std::string Lexer::readIdentifier(std::istream &input)
 
 bool Lexer::lex(std::istream &input, std::vector<Token> &output, std::ostream &error)
 {
-    char prev_c;
+    char prev_c = ' ';
     char c;
 
     long textPos = -1;

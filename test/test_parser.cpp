@@ -221,11 +221,6 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(nodes.size() == 0);
 
-        for (auto const &n : nodes)
-        {
-            n->accept(visitor);
-        }
-
         expectedDump = "";
         expectedError = "Unsupported keyword `cmd` at [3, 6)\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -242,11 +237,6 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
         nodes = parser.parse(tokens, error);
 
         REQUIRE(nodes.size() == 0);
-
-        for (auto const &n : nodes)
-        {
-            n->accept(visitor);
-        }
 
         expectedDump = "";
         expectedError = "Expected symbol instead of [EndDirective at [7, 9)]\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -266,11 +256,6 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(nodes.size() == 0);
 
-        for (auto const &n : nodes)
-        {
-            n->accept(visitor);
-        }
-
         expectedError = "Expected 2 symbols instead of 1\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
@@ -288,11 +273,6 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
         nodes = parser.parse(tokens, error);
 
         REQUIRE(nodes.size() == 0);
-
-        for (auto const &n : nodes)
-        {
-            n->accept(visitor);
-        }
 
         expectedError = "Unexpected EOF after [Symbol at [11, 14)] 'def'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -313,11 +293,6 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(nodes.size() == 0);
 
-        for (auto const &n : nodes)
-        {
-            n->accept(visitor);
-        }
-
         expectedError = "Expected EndDirective instead of [Text at [15, 18)] 'zzz'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
@@ -337,11 +312,6 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(nodes.size() == 0);
 
-        for (auto const &n : nodes)
-        {
-            n->accept(visitor);
-        }
-
         expectedError = "Expected EndDirective instead of [EndDirective at [14, 16)] '###'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
@@ -357,11 +327,6 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
         nodes = parser.parse(tokens, error);
 
         REQUIRE(nodes.size() == 0);
-
-        for (auto const &n : nodes)
-        {
-            n->accept(visitor);
-        }
 
         expectedDump = "";
         expectedError = "Expected symbol instead of [EndDirective at [14, 16)]\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -380,13 +345,8 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(nodes.size() == 0);
 
-        for (auto const &n : nodes)
-        {
-            n->accept(visitor);
-        }
-
         expectedDump = "";
-        expectedError = "LoopNode must have children.\nCannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "loop node must have children.\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -401,11 +361,6 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
         nodes = parser.parse(tokens, error);
 
         REQUIRE(nodes.size() == 0);
-
-        for (auto const &n : nodes)
-        {
-            n->accept(visitor);
-        }
 
         expectedDump = "";
         expectedError = "Unexpected EOF after [Text at [21, 24)] 'ABC'\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -450,11 +405,6 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(nodes.size() == 0);
 
-        for (auto const &n : nodes)
-        {
-            n->accept(visitor);
-        }
-
         expectedError = "Expected StartDirective instead of [Symbol at [23, 26)] 'inv'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
@@ -477,12 +427,7 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(nodes.size() == 0);
 
-        for (auto const &n : nodes)
-        {
-            n->accept(visitor);
-        }
-
-        expectedError = "Unexpected EOF after [Symbol at [24, 26)] 'inv'\nLoopNode must have children.\nCannot parse at [StartDirective at [0, 2)]\n";
+        expectedError = "Unexpected EOF after [Symbol at [24, 26)] 'inv'\nloop node must have children.\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
 
@@ -503,11 +448,6 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
         nodes = parser.parse(tokens, error);
 
         REQUIRE(nodes.size() == 0);
-
-        for (auto const &n : nodes)
-        {
-            n->accept(visitor);
-        }
 
         expectedError = "Expected EndBlock instead of [EndBlock at [24, 28)] '###'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -530,11 +470,6 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
         nodes = parser.parse(tokens, error);
 
         REQUIRE(nodes.size() == 0);
-
-        for (auto const &n : nodes)
-        {
-            n->accept(visitor);
-        }
 
         expectedError = "Unexpected EOF after [EndBlock at [24, 25)]\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -559,11 +494,6 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(nodes.size() == 0);
 
-        for (auto const &n : nodes)
-        {
-            n->accept(visitor);
-        }
-
         expectedError = "Expected Keyword `loop` instead of [Keyword at [25, 29)] 'nope'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
     }
@@ -586,11 +516,6 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
         nodes = parser.parse(tokens, error);
 
         REQUIRE(nodes.size() == 0);
-
-        for (auto const &n : nodes)
-        {
-            n->accept(visitor);
-        }
 
         expectedError = "Unexpected EOF after [Keyword at [25, 29)] 'loop'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -616,10 +541,325 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(nodes.size() == 0);
 
+        expectedError = "Expected EndDirective instead of [Text at [30, 34)] 'nope'\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq one symbol")
+    {
+        std::stringstream input("{{#ifeq left}}");
+        lexer.lex(input, tokens, error);
+        auto errors = error.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedDump = "";
+        expectedError = "Expected symbol instead of [EndDirective at [12, 14)]\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq two symbols")
+    {
+        std::stringstream input("{{#ifeq left right}}");
+        lexer.lex(input, tokens, error);
+        auto errors = error.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedDump = "";
+        expectedError = "ifeq node must have children.\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq two symbols with child")
+    {
+        std::stringstream input("{{#ifeq left right}}ABC{{/ifeq}}");
+        lexer.lex(input, tokens, error);
+        auto errors = error.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 1);
+
         for (auto const &n : nodes)
         {
             n->accept(visitor);
         }
+
+        expectedDump = "[IfEqNode `left` `right`] {\n[TextNode `ABC`]\n}\n";
+        expectedError = "";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq no symbols")
+    {
+        std::stringstream input("{{#ifeq}}");
+        lexer.lex(input, tokens, error);
+        auto errors = error.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedDump = "";
+        expectedError = "Expected symbol instead of [EndDirective at [7, 9)]\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq one symbol")
+    {
+        tokens = {
+            TokenFactory::newStartDirective(Context(0, 2)),
+            TokenFactory::newStartBlock(Context(2, 3)),
+            TokenFactory::newKeyword("ifeq", Context(3, 7)),
+            TokenFactory::newSymbol("abc", Context(7, 10)),
+        };
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedError = "Expected 2 symbols instead of 1\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq two symbols")
+    {
+        tokens = {
+            TokenFactory::newStartDirective(Context(0, 2)),
+            TokenFactory::newStartBlock(Context(2, 3)),
+            TokenFactory::newKeyword("ifeq", Context(3, 7)),
+            TokenFactory::newSymbol("abc", Context(7, 10)),
+            TokenFactory::newSymbol("def", Context(11, 14)),
+        };
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedError = "Unexpected EOF after [Symbol at [11, 14)] 'def'\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq two symbols Text")
+    {
+        tokens = {
+            TokenFactory::newStartDirective(Context(0, 2)),
+            TokenFactory::newStartBlock(Context(2, 3)),
+            TokenFactory::newKeyword("ifeq", Context(3, 7)),
+            TokenFactory::newSymbol("abc", Context(7, 10)),
+            TokenFactory::newSymbol("def", Context(11, 14)),
+            TokenFactory::newText("zzz", Context(15, 18)),
+        };
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedError = "Expected EndDirective instead of [Text at [15, 18)] 'zzz'\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq two symbols EndDirective(invalid)")
+    {
+        tokens = {
+            TokenFactory::newStartDirective(Context(0, 2)),
+            TokenFactory::newStartBlock(Context(2, 3)),
+            TokenFactory::newKeyword("ifeq", Context(3, 7)),
+            TokenFactory::newSymbol("abc", Context(7, 10)),
+            TokenFactory::newSymbol("def", Context(11, 14)),
+            Token(Token::Type::EndDirective, Context(14, 16), "###"),
+        };
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedError = "Expected EndDirective instead of [EndDirective at [14, 16)] '###'\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq one symbol EndDirective")
+    {
+        std::stringstream input("{{#ifeq range1}}");
+        lexer.lex(input, tokens, error);
+        auto errors = error.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedDump = "";
+        expectedError = "Expected symbol instead of [EndDirective at [14, 16)]\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq two symbols - invalid ending - 1")
+    {
+        tokens = {
+            TokenFactory::newStartDirective(Context(0, 2)),
+            TokenFactory::newStartBlock(Context(2, 3)),
+            TokenFactory::newKeyword("ifeq", Context(3, 7)),
+            TokenFactory::newSymbol("abc", Context(7, 10)),
+            TokenFactory::newSymbol("def", Context(11, 14)),
+            TokenFactory::newEndDirective(Context(14, 16)),
+            TokenFactory::newText("audare", Context(16, 22)),
+            TokenFactory::newSymbol("inv", Context(23, 26)),
+        };
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedError = "Expected StartDirective instead of [Symbol at [23, 26)] 'inv'\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq two symbols - invalid ending - 2")
+    {
+        tokens = {
+            TokenFactory::newStartDirective(Context(0, 2)),
+            TokenFactory::newStartBlock(Context(2, 3)),
+            TokenFactory::newKeyword("ifeq", Context(3, 7)),
+            TokenFactory::newSymbol("abc", Context(7, 10)),
+            TokenFactory::newSymbol("def", Context(11, 14)),
+            TokenFactory::newEndDirective(Context(14, 16)),
+            TokenFactory::newText("audare", Context(16, 22)),
+            TokenFactory::newStartDirective(Context(22, 24)),
+            TokenFactory::newSymbol("inv", Context(24, 26)),
+        };
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedError = "Unexpected EOF after [Symbol at [24, 26)] 'inv'\nifeq node must have children.\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq two symbols - invalid ending - 3")
+    {
+        tokens = {
+            TokenFactory::newStartDirective(Context(0, 2)),
+            TokenFactory::newStartBlock(Context(2, 3)),
+            TokenFactory::newKeyword("ifeq", Context(3, 7)),
+            TokenFactory::newSymbol("abc", Context(7, 10)),
+            TokenFactory::newSymbol("def", Context(11, 14)),
+            TokenFactory::newEndDirective(Context(14, 16)),
+            TokenFactory::newText("audare", Context(16, 22)),
+            TokenFactory::newStartDirective(Context(22, 24)),
+            Token(Token::Type::EndBlock, Context(24, 28), "###"),
+        };
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedError = "Expected EndBlock instead of [EndBlock at [24, 28)] '###'\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq two symbols - invalid ending - 4")
+    {
+        tokens = {
+            TokenFactory::newStartDirective(Context(0, 2)),
+            TokenFactory::newStartBlock(Context(2, 3)),
+            TokenFactory::newKeyword("ifeq", Context(3, 7)),
+            TokenFactory::newSymbol("abc", Context(7, 10)),
+            TokenFactory::newSymbol("def", Context(11, 14)),
+            TokenFactory::newEndDirective(Context(14, 16)),
+            TokenFactory::newText("audare", Context(16, 22)),
+            TokenFactory::newStartDirective(Context(22, 24)),
+            TokenFactory::newEndBlock(Context(24, 25)),
+        };
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedError = "Unexpected EOF after [EndBlock at [24, 25)]\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq two symbols - invalid ending - 5")
+    {
+        tokens = {
+            TokenFactory::newStartDirective(Context(0, 2)),
+            TokenFactory::newStartBlock(Context(2, 3)),
+            TokenFactory::newKeyword("ifeq", Context(3, 7)),
+            TokenFactory::newSymbol("abc", Context(7, 10)),
+            TokenFactory::newSymbol("def", Context(11, 14)),
+            TokenFactory::newEndDirective(Context(14, 16)),
+            TokenFactory::newText("audare", Context(16, 22)),
+            TokenFactory::newStartDirective(Context(22, 24)),
+            TokenFactory::newEndBlock(Context(24, 25)),
+            TokenFactory::newKeyword("nope", Context(25, 29)),
+        };
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedError = "Expected Keyword `ifeq` instead of [Keyword at [25, 29)] 'nope'\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IfEq two symbols - invalid ending - 6")
+    {
+        tokens = {
+            TokenFactory::newStartDirective(Context(0, 2)),
+            TokenFactory::newStartBlock(Context(2, 3)),
+            TokenFactory::newKeyword("ifeq", Context(3, 7)),
+            TokenFactory::newSymbol("abc", Context(7, 10)),
+            TokenFactory::newSymbol("def", Context(11, 14)),
+            TokenFactory::newEndDirective(Context(14, 16)),
+            TokenFactory::newText("audare", Context(16, 22)),
+            TokenFactory::newStartDirective(Context(22, 24)),
+            TokenFactory::newEndBlock(Context(24, 25)),
+            TokenFactory::newKeyword("ifeq", Context(25, 29)),
+        };
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedError = "Unexpected EOF after [Keyword at [25, 29)] 'ifeq'\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("IEq two symbols - invalid ending - 7")
+    {
+        tokens = {
+            TokenFactory::newStartDirective(Context(0, 2)),
+            TokenFactory::newStartBlock(Context(2, 3)),
+            TokenFactory::newKeyword("ifeq", Context(3, 7)),
+            TokenFactory::newSymbol("abc", Context(7, 10)),
+            TokenFactory::newSymbol("def", Context(11, 14)),
+            TokenFactory::newEndDirective(Context(14, 16)),
+            TokenFactory::newText("audare", Context(16, 22)),
+            TokenFactory::newStartDirective(Context(22, 24)),
+            TokenFactory::newEndBlock(Context(24, 25)),
+            TokenFactory::newKeyword("ifeq", Context(25, 29)),
+            TokenFactory::newText("nope", Context(30, 34)),
+        };
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
 
         expectedError = "Expected EndDirective instead of [Text at [30, 34)] 'nope'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()

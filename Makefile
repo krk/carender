@@ -1,6 +1,6 @@
 CC		:= g++
-C_FLAGS := -std=c++14 -Wall -Wextra -g -MMD -MP ${SANITIZE}
-C_FLAGS_COVER := -std=c++14 -Wall -Wextra -g -O0 ${SANITIZE} --coverage -fno-exceptions -fno-inline
+C_FLAGS := -std=c++14 -Wall -Wextra -O3 -g -MMD -MP ${SANITIZE}
+C_FLAGS_COVER := -std=c++14 -Wall -Wextra -O3 -g ${SANITIZE} --coverage -fno-exceptions -fno-inline
 
 OBJ		:= obj
 BIN		:= bin
