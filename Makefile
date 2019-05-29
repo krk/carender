@@ -1,4 +1,4 @@
-CC      := $(if $(CC),$(CC),gcc)
+CXX     := $(if $(CXX),$(CXX),g++)
 C_FLAGS := -std=c++14 -Wall -Wextra -O3 -g -MMD -MP ${SANITIZE}
 C_FLAGS_COVER := -std=c++14 -Wall -Wextra -O3 -g ${SANITIZE} --coverage -fno-exceptions -fno-inline
 
@@ -48,22 +48,22 @@ $(LIB)/$(STATIC_LIB): $(SRCS)
 	ar -r -o $@ $^
 
 $(OBJ)/%.o: $(SRC)/%.cpp
-	$(CC) $(C_FLAGS) -c -I$(INCLUDE) -L$(LIB) $< -o $@ $(LIBRARIES)
+	$(CXX) $(C_FLAGS) -c -I$(INCLUDE) -L$(LIB) $< -o $@ $(LIBRARIES)
 
 $(OBJ)/%.o: $(TEST)/%.cpp
-	$(CC) $(C_FLAGS) -c -I$(INCLUDE) -L$(LIB) $< -o $@ $(LIBRARIES)
+	$(CXX) $(C_FLAGS) -c -I$(INCLUDE) -L$(LIB) $< -o $@ $(LIBRARIES)
 
 $(OBJ)/%.o: $(CMD)/%.cpp
-	$(CC) $(C_FLAGS) -c -I$(INCLUDE) -L$(LIB) $< -o $@ $(LIBRARIES)
+	$(CXX) $(C_FLAGS) -c -I$(INCLUDE) -L$(LIB) $< -o $@ $(LIBRARIES)
 
 $(BIN)/$(TEST_BIN): $(LIB)/$(STATIC_LIB) $(SRCS_TEST)
-	$(CC) $(C_FLAGS) -I$(INCLUDE) -L$(LIB) $(SRCS_TEST) -o $@ -lcarender $(LIBRARIES)
+	$(CXX) $(C_FLAGS) -I$(INCLUDE) -L$(LIB) $(SRCS_TEST) -o $@ -lcarender $(LIBRARIES)
 
 $(BIN)/$(CMD_BIN): $(LIB)/$(STATIC_LIB) $(SRCS_CMD)
-	$(CC) $(C_FLAGS) -I$(INCLUDE) -L$(LIB) $(SRCS_CMD) -o $@ -lcarender $(LIBRARIES)
+	$(CXX) $(C_FLAGS) -I$(INCLUDE) -L$(LIB) $(SRCS_CMD) -o $@ -lcarender $(LIBRARIES)
 
 $(BIN)/$(TEST_COVER_BIN): $(SRCS_TEST) $(SRC)/*.cpp
-	$(CC) $(C_FLAGS_COVER) -I$(INCLUDE) -L$(LIB) $(SRCS_TEST) $(SRC)/*.cpp -o $@ $(LIBRARIES)
+	$(CXX) $(C_FLAGS_COVER) -I$(INCLUDE) -L$(LIB) $(SRCS_TEST) $(SRC)/*.cpp -o $@ $(LIBRARIES)
 
 dirmake:
 	@mkdir -p $(OBJ)
