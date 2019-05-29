@@ -1,0 +1,17 @@
+digraph {
+    parse -> parseNodes
+
+    parseNodes -> PrintNode
+    parseNodes -> TextNode
+
+    parseNodes -> parseBlock
+    parseBlock -> parseLoop
+    parseBlock -> parseIfEq
+
+    parseLoop -> parseBlockWithTwoSymbols
+    parseIfEq -> parseBlockWithTwoSymbols
+
+    parseBlockWithTwoSymbols -> LoopNode
+    parseBlockWithTwoSymbols -> IfEqNode
+    parseBlockWithTwoSymbols -> parseNodes
+}

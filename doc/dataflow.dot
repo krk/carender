@@ -1,0 +1,27 @@
+digraph {
+    graph[rankdir="LR"]
+
+    text [label="Template File", shape="triangle"]
+    symbols [label="Variables", shape="triangle"]
+    output [label="Rendered File", shape="doubleoctagon"]
+    errors [shape="octagon"]
+
+    tokens [shape="note"]
+    nodes [shape="note"]
+
+    text -> Lexer
+    Lexer -> tokens
+
+    tokens -> Parser
+    symbols -> Parser
+    Parser -> nodes
+
+    nodes -> Renderer
+    symbols -> Renderer
+
+    Renderer -> output
+
+    Lexer -> errors
+    Parser -> errors
+    Renderer -> errors
+}

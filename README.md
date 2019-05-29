@@ -11,8 +11,72 @@ cd from_docker/bin
 RANGE_SYMBOLS=../../examples/fruits/ranges.txt SYMBOLS=../../examples/fruits/symbols.txt ./carender ../../examples/fruits/template.car
 ```
 
+## Design
+
+### Requirements
+* No third-party library dependencies except libc/libc++/STL.
+* No lexer/parser generators.
+* Target C++14 standard.
+* Having fun throughout the development process.
+
+### Principles
+
+OOP design patterns, SOLID and DRY principles are observed as far as possible in the limited time that was allocated to this project. That is, except `test` and `cmd` folders. There is a lot of code duplication in `tests` and there are no tests in `cmd`.
+
+### Decisions
+
+* No unused code.
+* No commented-out code.
+* Target recent g++ and clang++ versions.
+* Target 100% unit test **branch** coverage.
+
+## Implementation
+
+`carender` consists of a lexer, a parser, a renderer and a command line tool that uses these components as an example.
+
+* A [Makefile](Makefile) is used for building, testing and coverage reporting.
+* [catch2](https://github.com/catchorg/Catch2) chosen for unit testing. It is a header-only library and easy to add to a project.
+* `g++` and [lcov](http://ltp.sourceforge.net/coverage/lcov.php) for coverage reports. Coverage reporting is not supported when building with `clang++`.
+* Optional - A `Dockerfile` added to document the build steps in a reproducible manner. Run `build_in_docker.sh` to build, test and create coverage reports.
+* Windows and OSX support is best effort.
+
+**Lexer** reads an `istream` and ignores whitespace in non-text context, e.g. between START_DIRECTIVE and START_BLOCK in `{{   #loop range element}}`. Inside text content, lexer does not ignore whitespace. For this purpose, lexer keeps track of the state as "inside START_DIRECTIVE or not" and "inside START_BLOCK/END_BLOCK or not".
+
+Entry point is the public `lex` method:
+```c++
+bool lex(std::istream &input, std::vector<Token> &output, std::ostream &error);
+```
+
+**Parser** is a hand-written recursive-descent parser that generates four types of nodes:
+`TextNode`, `PrintNode`, `LoopNode`, `IfEqNode`.
+
+Entry point is the public `parse` method:
+
+```c++
+A
+```
+
+
+`Parser` internal dependencies:
+
+![parser methods](doc/parser.png)
+
+Notes:
+* `parseBlock` method choses the parser method to dispatch for a block based on the keyword (`loop` and `ifeq`) from the `keywordParser` map defined in the `Parser`.
+* To reduce code duplication, common functionality of `parseLoop` and `parseIfEq` are moved to the template member method, `parseBlockWithTwoSymbols`.
+* Parser is tested with the Lexer's output and separately with manually crafted Token streams that the lexer may not generate, in `test_parser.cpp`.
+
+**Renderer** implements the `Visitor Pattern` to consume a stream of nodes from the parser.
+
+Data flow using `lexer`, `parser` and `renderer`.
+
+![parser methods](doc/dataflow.png)
+
 ## Usage
+
 `carender` can be linked as a static library. A command line tool is provided as an example of using the library.
+
+**Warning:** Only tested on Ubuntu 18.04 and Debian Stretch.
 
 ### High-level Driver API
 

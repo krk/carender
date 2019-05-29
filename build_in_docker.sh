@@ -6,7 +6,7 @@ docker build -t carender-ci .
 docker create --name carender-ci carender-ci
 
 rm -rf from_docker
-mkdir -p ./from_docker
+mkdir ./from_docker
 
 docker cp carender-ci:/app/bin/ ./from_docker/bin
 docker cp carender-ci:/app/lib/ ./from_docker/lib
