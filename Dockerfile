@@ -8,7 +8,9 @@ WORKDIR /app
 
 ENV CC gcc
 
-RUN make -j`nproc` cover
-
 RUN make clean && SANITIZE="-fsanitize=undefined -fsanitize=address -fsanitize=leak" make -j`nproc` all
 RUN ./bin/test
+
+RUN make clean && make -j`nproc` cover
+
+RUN make clean && make -j`nproc` lib cmd

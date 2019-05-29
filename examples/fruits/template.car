@@ -1,0 +1,7 @@
+Hello {{name}},
+
+{{#loop items item}}
+I like {{item}}{{#ifeq item favorite}} very much{{/ifeq}}.
+{{/loop}}
+
+Cheers!
