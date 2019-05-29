@@ -20,12 +20,6 @@ class TextNode;
 class PrintNode;
 class LoopNode;
 
-enum class VisitReason
-{
-    Enter,
-    Exit,
-};
-
 class Visitor
 {
 public:
@@ -33,7 +27,7 @@ public:
 
     virtual void visit(const TextNode &n) = 0;
     virtual void visit(const PrintNode &n) = 0;
-    virtual void visit(const LoopNode &n, VisitReason reason) = 0;
+    virtual void visit(const LoopNode &n) = 0;
 };
 
 class Node
@@ -42,6 +36,8 @@ public:
     virtual ~Node() = default;
 
     virtual void accept(Visitor &v) = 0;
+
+    const Context &Ctx() const { return this->ctx; }
 
 protected:
     Node(Context ctx) : ctx(ctx) {}
@@ -102,12 +98,7 @@ public:
 
     void accept(Visitor &v) override
     {
-        v.visit(*this, VisitReason::Enter);
-        for (auto const child : this->Children())
-        {
-            child->accept(v);
-        }
-        v.visit(*this, VisitReason::Exit);
+        v.visit(*this);
     }
 
     const std::string &RangeSymbol() const
@@ -133,10 +124,18 @@ private:
 class ParserOptions
 {
 public:
-    ParserOptions(const std::unordered_set<std::string> &validSymbols)
-        : ValidSymbols(validSymbols) {}
+    ParserOptions(const std::unordered_set<std::string> &symbols)
+        : symbols(symbols)
+    {
+    }
 
-    const std::unordered_set<std::string> ValidSymbols;
+    std::unordered_set<std::string> &Symbols()
+    {
+        return this->symbols;
+    }
+
+private:
+    std::unordered_set<std::string> symbols;
 };
 
 class Parser
@@ -150,13 +149,14 @@ public:
 private:
     typedef std::vector<std::unique_ptr<Node>> (Parser::*nodeParser)(std::vector<lexer::Token>::const_iterator &begin,
                                                                      const std::vector<lexer::Token>::const_iterator end,
-                                                                     std::ostream &error) const;
+                                                                     std::ostream &error);
 
     std::vector<std::string>
     parseSymbols(std::vector<lexer::Token>::const_iterator &begin,
                  const std::vector<lexer::Token>::const_iterator end,
                  int count,
-                 std::ostream &error) const;
+                 std::vector<std::string> &declared,
+                 std::ostream &error);
 
     bool
     parseExact(std::vector<lexer::Token>::const_iterator &begin,
@@ -165,23 +165,23 @@ private:
 
     std::vector<std::unique_ptr<Node>> parseNodes(std::vector<lexer::Token>::const_iterator &begin,
                                                   const std::vector<lexer::Token>::const_iterator end,
-                                                  std::ostream &error) const;
+                                                  std::ostream &error);
 
     std::vector<std::unique_ptr<Node>>
     parseBlock(std::vector<lexer::Token>::const_iterator &begin,
                const std::vector<lexer::Token>::const_iterator end,
-               std::ostream &error) const;
+               std::ostream &error);
 
     std::vector<std::unique_ptr<Node>>
     parseLoop(std::vector<lexer::Token>::const_iterator &begin,
               const std::vector<lexer::Token>::const_iterator end,
-              std::ostream &error) const;
+              std::ostream &error);
 
     std::unordered_map<std::string, nodeParser> keywordParser = {
         {"loop", &Parser::parseLoop},
     };
 
-    const ParserOptions options;
+    ParserOptions options;
 };
 
 } // namespace parser

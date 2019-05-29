@@ -22,19 +22,36 @@ void Renderer::visit(const PrintNode &n)
     this->output << symbol->second;
 }
 
-void Renderer::visit(const LoopNode &n, VisitReason reason)
+void Renderer::visit(const LoopNode &n)
 {
-    switch (reason)
+    auto rangeSym = this->rangeSymbols.find(n.RangeSymbol());
+    if (rangeSym == this->rangeSymbols.end())
     {
-    case VisitReason::Enter:
-        loopDepth++;
-        output << "[LoopNode `" << n.ElementSymbol() << "` in `" << n.RangeSymbol() << "` depth`" << loopDepth << "` {" << std::endl;
-        break;
-    case VisitReason::Exit:
-        output << "} depth`" << loopDepth << "`" << std::endl;
-        loopDepth--;
-        break;
+        this->error << "Range symbol not found: `" << n.RangeSymbol() << "`" << std::endl;
+        return;
     }
+
+    const auto &range = rangeSym->second;
+    const auto &element = n.ElementSymbol();
+
+    // Symbol names must be unique across the program, i.e. every symbol is global-scoped.
+    auto elemSym = this->symbols.find(element);
+    if (elemSym != this->symbols.end())
+    {
+        this->error << "Symbol names must be unique across the program, redefined `" << element << "` at " << n.Ctx() << std::endl;
+        return;
+    }
+
+    for (const auto &value : range)
+    {
+        this->symbols[element] = value;
+
+        for (auto const &child : n.Children())
+        {
+            child->accept(*this);
+        }
+    }
+    this->symbols.erase(element);
 }
 
 } // namespace renderer

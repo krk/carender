@@ -1,6 +1,7 @@
 #include <ostream>
 #include <memory>
 #include <functional>
+#include <algorithm>
 
 #include "lexer.hpp"
 #include "parser.hpp"
@@ -47,12 +48,20 @@ constexpr std::size_t string_length(
         goto fail;                                                     \
     }
 
-#define CHECK_SYMBOL(symbol, it)                                                     \
-    if (!this->options.ValidSymbols.empty() &&                                       \
-        this->options.ValidSymbols.find(symbol) == this->options.ValidSymbols.end()) \
-    {                                                                                \
-        error << "Invalid symbol " << *it << std::endl;                              \
-        goto fail;                                                                   \
+#define CHECK_SYMBOL(symbol, it)                                               \
+    if (!this->options.Symbols().empty() &&                                    \
+        this->options.Symbols().find(symbol) == this->options.Symbols().end()) \
+    {                                                                          \
+        error << "Invalid symbol " << *it << std::endl;                        \
+        goto fail;                                                             \
+    }
+
+#define CHECK_SYMBOL_UNDEFINED(symbol, it)                                     \
+    if (!this->options.Symbols().empty() &&                                    \
+        this->options.Symbols().find(symbol) != this->options.Symbols().end()) \
+    {                                                                          \
+        error << "Symbol already defined: " << *it << std::endl;               \
+        goto fail;                                                             \
     }
 
 bool Parser::parseExact(std::vector<lexer::Token>::const_iterator &begin,
@@ -72,7 +81,8 @@ std::vector<std::string>
 Parser::parseSymbols(std::vector<lexer::Token>::const_iterator &begin,
                      const std::vector<lexer::Token>::const_iterator end,
                      int count,
-                     std::ostream &error) const
+                     std::vector<std::string> &declared,
+                     std::ostream &error)
 {
     auto symbols = std::vector<std::string>();
     int seen = 0;
@@ -83,7 +93,17 @@ Parser::parseSymbols(std::vector<lexer::Token>::const_iterator &begin,
         case Type::Symbol:
         {
             const auto &symbol = it->GetValue();
-            CHECK_SYMBOL(symbol, it)
+            if (seen == 0)
+            {
+                // Only first symbol is checked, subsequent symbols are interpreted as declarations.
+                CHECK_SYMBOL(symbol, it)
+            }
+            else
+            {
+                // If symbol is not defined, add it. It is an error to define same symbol more than once in a file.
+                CHECK_SYMBOL_UNDEFINED(symbol, it);
+                declared.push_back(symbol);
+            }
 
             symbols.push_back(symbol);
             seen++;
@@ -113,7 +133,7 @@ fail:
 std::vector<std::unique_ptr<Node>>
 Parser::parseLoop(std::vector<lexer::Token>::const_iterator &begin,
                   const std::vector<lexer::Token>::const_iterator end,
-                  std::ostream &error) const
+                  std::ostream &error)
 {
     std::vector<std::shared_ptr<Node>> children;
     auto const initial = begin;
@@ -121,11 +141,13 @@ Parser::parseLoop(std::vector<lexer::Token>::const_iterator &begin,
     // {{#loop range element}} ... {{/loop}}
     // Parse a single loop block with its children and EndBlock. `begin` will be at the first token after the Keyword.
 
-    auto symbols = this->parseSymbols(begin, end, 2, error);
+    auto declared = std::vector<std::string>();
+    auto symbols = this->parseSymbols(begin, end, 2, declared, error);
     if (symbols.size() != 2)
     {
         goto fail;
     }
+    this->options.Symbols().insert(declared.begin(), declared.end());
 
     // Parse children.
     for (auto &n : this->parseNodes(begin, end, error))
@@ -160,13 +182,18 @@ Parser::parseLoop(std::vector<lexer::Token>::const_iterator &begin,
     }
 
 fail:
+    for (const auto &symbol : declared)
+    {
+        this->options.Symbols().erase(symbol);
+    }
+
     return {};
 }
 
 std::vector<std::unique_ptr<Node>>
 Parser::parseBlock(std::vector<lexer::Token>::const_iterator &begin,
                    const std::vector<lexer::Token>::const_iterator end,
-                   std::ostream &error) const
+                   std::ostream &error)
 {
     // Parse a single block including the corresponding EndBlock and EndDirective.
 
@@ -198,7 +225,7 @@ fail:
 std::vector<std::unique_ptr<Node>>
 Parser::parseNodes(std::vector<lexer::Token>::const_iterator &begin,
                    const std::vector<lexer::Token>::const_iterator end,
-                   std::ostream &error) const
+                   std::ostream &error)
 {
     auto nodes = std::vector<std::unique_ptr<Node>>();
 

@@ -25,20 +25,19 @@ void PrintingVisitor::visit(const PrintNode &n)
     this->output << "[PrintNode symbol`" << n.Symbol() << "`]" << std::endl;
 }
 
-void PrintingVisitor::visit(const LoopNode &n, VisitReason reason)
+void PrintingVisitor::visit(const LoopNode &n)
 {
-    switch (reason)
+    this->indent();
+    this->loopDepth++;
+    this->output << "[LoopNode `" << n.ElementSymbol() << "` in `" << n.RangeSymbol() << "` depth`" << loopDepth << "` {" << std::endl;
+
+    for (auto const &child : n.Children())
     {
-    case VisitReason::Enter:
-        this->indent();
-        loopDepth++;
-        this->output << "[LoopNode `" << n.ElementSymbol() << "` in `" << n.RangeSymbol() << "` depth`" << loopDepth << "` {" << std::endl;
-        break;
-    case VisitReason::Exit:
-        this->output << "} depth`" << loopDepth << "`" << std::endl;
-        loopDepth--;
-        break;
+        child->accept(*this);
     }
+
+    this->output << "} depth`" << this->loopDepth << "`" << std::endl;
+    this->loopDepth--;
 }
 
 } // namespace parser

@@ -11,7 +11,6 @@ using car::parser::LoopNode;
 using car::parser::PrintNode;
 using car::parser::TextNode;
 using car::parser::Visitor;
-using car::parser::VisitReason;
 
 namespace car
 {
@@ -21,20 +20,24 @@ namespace renderer
 class Renderer : public Visitor
 {
 public:
-    Renderer(const std::unordered_map<std::string, std::string> &symbols, std::ostream &output, std::ostream &error)
-        : symbols(symbols), output(output), error(error), loopDepth(0) {}
+    Renderer(
+        const std::unordered_map<std::string, std::string> &symbols,
+        const std::unordered_map<std::string, std::vector<std::string>> &rangeSymbols,
+        std::ostream &output,
+        std::ostream &error)
+        : symbols(symbols), rangeSymbols(rangeSymbols), output(output), error(error) {}
 
     void visit(const TextNode &n) override;
     void visit(const PrintNode &n) override;
-    void visit(const LoopNode &n, VisitReason reason) override;
+    void visit(const LoopNode &n) override;
 
     virtual ~Renderer() = default;
 
 private:
-    const std::unordered_map<std::string, std::string> symbols;
+    std::unordered_map<std::string, std::string> symbols;
+    const std::unordered_map<std::string, std::vector<std::string>> rangeSymbols;
     std::ostream &output;
     std::ostream &error;
-    int loopDepth;
 };
 
 } // namespace renderer

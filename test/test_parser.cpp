@@ -694,9 +694,25 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
         ASSERT_RESULTS()
     }
 
-    SECTION("Known symbol in loop")
+    SECTION("Known symbol in loop - redefined")
     {
         std::stringstream input("{{#loop validus validus}}QED{{/loop}}");
+        lexer.lex(input, tokens, lexerError);
+        auto errors = lexerError.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedError = "Symbol already defined: [Symbol at [16, 23)] 'validus'\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("Known symbol in loop")
+    {
+        std::stringstream input("{{#loop validus i}}QED{{/loop}}");
         lexer.lex(input, tokens, lexerError);
         auto errors = lexerError.str();
 
@@ -711,7 +727,8 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
             n->accept(visitor);
         }
 
-        expectedDump = "[LoopNode `validus` in `validus` depth`1` {\n  [TextNode `QED`]\n} depth`1`\n";
+        expectedDump = "[LoopNode `i` in `validus` depth`1` {\n  [TextNode `QED`]\n} depth`1`\n";
+
         ASSERT_RESULTS()
     }
 }

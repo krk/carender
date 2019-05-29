@@ -19,7 +19,7 @@ public:
 
     void visit(const TextNode &n) override;
     void visit(const PrintNode &n) override;
-    void visit(const LoopNode &n, VisitReason reason) override;
+    void visit(const LoopNode &n) override;
 
     virtual ~PrintingVisitor() = default;
 
