@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
         rangeSymbols = readRangeSymbols(rss);
     }
 
-    if (const char *symbolsName = std::getenv("DEBUG"))
+    if (std::getenv("DEBUG"))
     {
         for (auto pair : symbols)
         {
@@ -112,6 +112,7 @@ int main(int argc, char *argv[])
         }
     }
     auto driver = Driver(symbols, rangeSymbols, std::cout, std::cerr);
+
     auto templ = std::ifstream(argv[1]);
     auto result = driver.Render(templ) ? EXIT_SUCCESS : EXIT_FAILURE;
 
