@@ -1,7 +1,7 @@
 CC		:= g++
-C_FLAGS := -std=c++14 -Wall -Wextra -g -MMD -MP -fsanitize=undefined -fsanitize=leak
+C_FLAGS := -std=c++14 -Wall -Wextra -g -MMD -MP ${SANITIZE}
 # TODO Use -fsanitize-address in C_FLAGS_COVER. -fsanitize=address changes behavior without reporting an compile-time error in test "Lexer::lex StartDirective StartBlock".
-C_FLAGS_COVER := -std=c++14 -Wall -Wextra -g -fsanitize=undefined -fsanitize=leak -O0 --coverage -fno-exceptions -fno-inline
+C_FLAGS_COVER := -std=c++14 -Wall -Wextra -g -O0 ${SANITIZE} --coverage -fno-exceptions -fno-inline
 
 OBJ		:= obj
 BIN		:= bin
