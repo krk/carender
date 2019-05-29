@@ -122,7 +122,7 @@ TEST_CASE("Renderer", "[renderer]")
     SECTION("Symbol redefined")
     {
         rangeSymbols["xs"] = {"x1", "x2", "x3"};
-        symbols["x"] = {"this is X."};
+        symbols["x"] = "this is X.";
         std::vector<std::unique_ptr<Node>> nodes;
         nodes.push_back(std::make_unique<PrintNode>(PrintNode("x", Context(0, 1))));
         nodes.push_back(std::make_unique<LoopNode>(LoopNode("xs", "x", Context(10, 20))));
@@ -151,7 +151,9 @@ TEST_CASE("Renderer", "[renderer]")
             n->accept(renderer);
         }
 
-        expectedError = "Range symbol not found: `x`\nSymbol not found: `xs`\n";
+        // Renderer does not continue on error, second error
+        // is not expected: "Symbol not found: `xs`".
+        expectedError = "Range symbol not found: `x`\n";
         ASSERT_RESULTS()
     }
 }

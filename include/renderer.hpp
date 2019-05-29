@@ -25,11 +25,16 @@ public:
         const std::unordered_map<std::string, std::vector<std::string>> &rangeSymbols,
         std::ostream &output,
         std::ostream &error)
-        : symbols(symbols), rangeSymbols(rangeSymbols), output(output), error(error) {}
+        : symbols(symbols), rangeSymbols(rangeSymbols), output(output), error(error), hasError(false) {}
 
     void visit(const TextNode &n) override;
     void visit(const PrintNode &n) override;
     void visit(const LoopNode &n) override;
+
+    bool HasError()
+    {
+        return this->hasError;
+    }
 
     virtual ~Renderer() = default;
 
@@ -38,6 +43,7 @@ private:
     const std::unordered_map<std::string, std::vector<std::string>> rangeSymbols;
     std::ostream &output;
     std::ostream &error;
+    bool hasError;
 };
 
 } // namespace renderer

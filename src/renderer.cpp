@@ -7,14 +7,25 @@ namespace renderer
 
 void Renderer::visit(const TextNode &n)
 {
+    if (this->hasError)
+    {
+        return;
+    }
+
     this->output << n.Text();
 }
 
 void Renderer::visit(const PrintNode &n)
 {
+    if (this->hasError)
+    {
+        return;
+    }
+
     const auto &symbol = this->symbols.find(n.Symbol());
     if (symbol == this->symbols.end())
     {
+        this->hasError = true;
         this->error << "Symbol not found: `" << n.Symbol() << "`" << std::endl;
         return;
     }
@@ -24,9 +35,15 @@ void Renderer::visit(const PrintNode &n)
 
 void Renderer::visit(const LoopNode &n)
 {
+    if (this->hasError)
+    {
+        return;
+    }
+
     auto rangeSym = this->rangeSymbols.find(n.RangeSymbol());
     if (rangeSym == this->rangeSymbols.end())
     {
+        this->hasError = true;
         this->error << "Range symbol not found: `" << n.RangeSymbol() << "`" << std::endl;
         return;
     }
@@ -38,6 +55,7 @@ void Renderer::visit(const LoopNode &n)
     auto elemSym = this->symbols.find(element);
     if (elemSym != this->symbols.end())
     {
+        this->hasError = true;
         this->error << "Symbol names must be unique across the program, redefined `" << element << "` at " << n.Ctx() << std::endl;
         return;
     }
