@@ -1,4 +1,4 @@
-CC		:= g++
+CC      := $(if $(CC),$(CC),gcc)
 C_FLAGS := -std=c++14 -Wall -Wextra -O3 -g -MMD -MP ${SANITIZE}
 C_FLAGS_COVER := -std=c++14 -Wall -Wextra -O3 -g ${SANITIZE} --coverage -fno-exceptions -fno-inline
 

@@ -1,0 +1,7 @@
+.git
+.vscode
+bin
+lib
+obj
+test_coverage
+from_docker
