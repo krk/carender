@@ -129,7 +129,16 @@ bool Lexer::lex(std::istream &input, std::vector<Token> &output, std::ostream &e
                 else if (c == '}' && prev_c == '}')
                 {
                     output.push_back(TokenFactory::newEndDirective(Context(pos - 2L, pos)));
-                    input >> std::ws;
+                    // Consume a single newline after EndDirective, do not consume spaces.
+                    if (input.peek() == '\r')
+                    {
+                        input.ignore(1);
+                    }
+                    if (input.peek() == '\n')
+                    {
+                        input.ignore(1);
+                    }
+
                     this->isInBlock = false;
                     this->isInDirective = false;
                 }

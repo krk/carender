@@ -306,6 +306,118 @@ TEST_CASE("Lexer::lex", "[lexer]")
         ASSERT_RESULTS()
     }
 
+    SECTION("Whitespace Symbol")
+    {
+        std::stringstream input(" \n  \t {{nop}}\n  \n ");
+        lexer.lex(input, tokens, error);
+
+        std::vector<Token> expectedTokens = {
+            TokenFactory::newText(" \n  \t ", Context(0, 6)),
+            TokenFactory::newStartDirective(Context(6, 8)),
+            TokenFactory::newSymbol("nop", Context(8, 11)),
+            TokenFactory::newEndDirective(Context(11, 13)),
+            TokenFactory::newText("\n  \n ", Context(13, 18)),
+        };
+        REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
+    }
+
+    SECTION("Whitespace Block - LF")
+    {
+        std::stringstream input(" \n  \t {{#bl}}\n  \n ");
+        lexer.lex(input, tokens, error);
+
+        std::vector<Token> expectedTokens = {
+            TokenFactory::newText(" \n  \t ", Context(0, 6)),
+            TokenFactory::newStartDirective(Context(6, 8)),
+            TokenFactory::newStartBlock(Context(8, 9)),
+            TokenFactory::newKeyword("bl", Context(9, 11)),
+            TokenFactory::newEndDirective(Context(11, 13)),
+            // One CR/LF is eaten after an (StartBlock|EndBlock), EndDirective.
+            TokenFactory::newText("  \n ", Context(14, 18)),
+        };
+        REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
+    }
+
+    SECTION("Whitespace Block - LFLF")
+    {
+        std::stringstream input(" \n  \t {{#bl}}\n\n  \n ");
+        lexer.lex(input, tokens, error);
+
+        std::vector<Token> expectedTokens = {
+            TokenFactory::newText(" \n  \t ", Context(0, 6)),
+            TokenFactory::newStartDirective(Context(6, 8)),
+            TokenFactory::newStartBlock(Context(8, 9)),
+            TokenFactory::newKeyword("bl", Context(9, 11)),
+            TokenFactory::newEndDirective(Context(11, 13)),
+            // One CR/LF is eaten after an (StartBlock|EndBlock), EndDirective.
+            TokenFactory::newText("\n  \n ", Context(14, 19)),
+        };
+        REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
+    }
+
+    SECTION("Whitespace Block - CR")
+    {
+        std::stringstream input(" \n  \t {{#bl}}\r  \n ");
+        lexer.lex(input, tokens, error);
+
+        std::vector<Token> expectedTokens = {
+            TokenFactory::newText(" \n  \t ", Context(0, 6)),
+            TokenFactory::newStartDirective(Context(6, 8)),
+            TokenFactory::newStartBlock(Context(8, 9)),
+            TokenFactory::newKeyword("bl", Context(9, 11)),
+            TokenFactory::newEndDirective(Context(11, 13)),
+            // One CR/LF is eaten after an (StartBlock|EndBlock), EndDirective.
+            TokenFactory::newText("  \n ", Context(14, 18)),
+        };
+        REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
+    }
+
+    SECTION("Whitespace Block - CRCR")
+    {
+        std::stringstream input(" \n  \t {{#bl}}\r\r  \n ");
+        lexer.lex(input, tokens, error);
+
+        std::vector<Token> expectedTokens = {
+            TokenFactory::newText(" \n  \t ", Context(0, 6)),
+            TokenFactory::newStartDirective(Context(6, 8)),
+            TokenFactory::newStartBlock(Context(8, 9)),
+            TokenFactory::newKeyword("bl", Context(9, 11)),
+            TokenFactory::newEndDirective(Context(11, 13)),
+            // One CR/LF is eaten after an (StartBlock|EndBlock), EndDirective.
+            TokenFactory::newText("\r  \n ", Context(14, 19)),
+        };
+        REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
+    }
+
+    SECTION("Whitespace Block - CRLF")
+    {
+        std::stringstream input(" \n  \t {{#bl}}\r\n  \n ");
+        lexer.lex(input, tokens, error);
+
+        std::vector<Token> expectedTokens = {
+            TokenFactory::newText(" \n  \t ", Context(0, 6)),
+            TokenFactory::newStartDirective(Context(6, 8)),
+            TokenFactory::newStartBlock(Context(8, 9)),
+            TokenFactory::newKeyword("bl", Context(9, 11)),
+            TokenFactory::newEndDirective(Context(11, 13)),
+            // One CR/LF is eaten after an (StartBlock|EndBlock), EndDirective.
+            TokenFactory::newText("  \n ", Context(15, 19)),
+        };
+        REQUIRE_THAT(tokens, Equals(expectedTokens));
+
+        ASSERT_RESULTS()
+    }
+
     SECTION("StartDirective StartBlock Keyword space")
     {
         std::stringstream input("{{#mop   a  b \tcd }}");
@@ -345,7 +457,7 @@ Last line.)");
 
     SECTION("lexers gonna lex")
     {
-        std::stringstream input("abc {{#xy }}\ndef# {{  # zdg s1  asfa2   }} art {{/audi}}");
+        std::stringstream input("abc {{#xy }}\ndef# {{  # zdg s1  asfa2   }} art {{/audi}}\n  \n ");
         lexer.lex(input, tokens, error);
 
         std::vector<Token> expectedTokens = {
@@ -361,11 +473,12 @@ Last line.)");
             TokenFactory::newSymbol("s1", Context(28, 30)),
             TokenFactory::newSymbol("asfa2", Context(32, 37)),
             TokenFactory::newEndDirective(Context(40, 42)),
-            TokenFactory::newText("art ", Context(43, 47)),
+            TokenFactory::newText(" art ", Context(42, 47)),
             TokenFactory::newStartDirective(Context(47, 49)),
             TokenFactory::newEndBlock(Context(49, 50)),
             TokenFactory::newKeyword("audi", Context(50, 54)),
             TokenFactory::newEndDirective(Context(54, 56)),
+            TokenFactory::newText("  \n ", Context(57, 61)),
         };
         REQUIRE_THAT(tokens, Equals(expectedTokens));
 

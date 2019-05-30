@@ -726,7 +726,7 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             n->accept(visitor);
         }
 
-        expectedDump = "[LoopNode `elem` in `range` depth`1` {\n  [IfEqNode `left` `right`] {\n  [TextNode `ABC`]\n}\n} depth`1`\n";
+        expectedDump = "[LoopNode `elem` in `range` depth`1` {\n  [TextNode ` `]\n  [IfEqNode `left` `right`] {\n  [TextNode `ABC`]\n}\n  [TextNode ` `]\n} depth`1`\n";
         expectedError = "";
         ASSERT_RESULTS()
     }
@@ -1032,7 +1032,7 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
 
     SECTION("Loop IfEq - no symbol undefined")
     {
-        std::stringstream input("{{#loop validus elem}} {{#ifeq elem elem}}ABC{{/ifeq}} {{/loop}}");
+        std::stringstream input("{{#loop validus elem}}  {{#ifeq elem elem}}ABC{{/ifeq}} {{/loop}}");
         lexer.lex(input, tokens, error);
         auto errors = error.str();
 
@@ -1047,7 +1047,7 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
             n->accept(visitor);
         }
 
-        expectedDump = "[LoopNode `elem` in `validus` depth`1` {\n  [IfEqNode `elem` `elem`] {\n  [TextNode `ABC`]\n}\n} depth`1`\n";
+        expectedDump = "[LoopNode `elem` in `validus` depth`1` {\n  [TextNode `  `]\n  [IfEqNode `elem` `elem`] {\n  [TextNode `ABC`]\n}\n  [TextNode ` `]\n} depth`1`\n";
         expectedError = "";
         ASSERT_RESULTS()
     }
