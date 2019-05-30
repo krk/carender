@@ -36,7 +36,7 @@ constexpr std::size_t string_length(
         goto fail;                                                     \
     }
 
-#define PARSE_EXACT_2(type, value)                                     \
+#define PARSE_EXACT_VALUE(type, value)                                 \
     if (begin == end)                                                  \
     {                                                                  \
         error << "Unexpected EOF after " << *(begin - 1) << std::endl; \
@@ -170,7 +170,7 @@ Parser::parseBlockWithTwoSymbols(std::vector<lexer::Token>::const_iterator &begi
     // Parse StartDirective EndBlock Keyword EndDirective.
     PARSE_EXACT(Type::StartDirective)
     PARSE_EXACT(Type::EndBlock)
-    PARSE_EXACT_2(Type::Keyword, keyword)
+    PARSE_EXACT_VALUE(Type::Keyword, keyword)
     PARSE_EXACT(Type::EndDirective)
 
     // Return NodeType.
