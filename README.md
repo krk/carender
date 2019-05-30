@@ -77,7 +77,18 @@ Data flow using `lexer`, `parser` and `renderer`:
 
 `make all`
 
-* A [Makefile](Makefile) is used for building, testing and coverage reporting.
+A [Makefile](Makefile) is used for building, testing and coverage reporting.
+
+`make` targets:
+
+* `lib`: To build the static library.
+* `test`: To build unit tests.
+* `cmd`: To build example command-line tool.
+* `clean`: Remove build artifacts.
+* `cover`: Build unit tests with coverage instrumentation, run tests to collect coverage information and create html reports in `test_coverage` folder.
+* `cover-show`: Build `cover` and display index with `firefox`.
+
+Set `CXX` environment variable to use a different compiler. Tested with recent clang++, afl-g++, afl-clang++ versions.
 
 ### Testing
 
