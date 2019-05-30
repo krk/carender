@@ -50,6 +50,7 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
     auto tokens = std::vector<Token>();
     std::vector<std::unique_ptr<Node>> nodes;
     auto lexer = Lexer();
+    bool parserSuccess;
     auto symbols = std::unordered_set<std::string>();
     auto parser = Parser(ParserOptions(symbols));
     auto visitor = PrintingVisitor(dump);
@@ -64,9 +65,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(errors == "Unexpected token '}' at [3, 4).\n");
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Unexpected EOF after [Symbol at [2, 3)] 'x'\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -79,9 +80,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newStartDirective(Context(0, 2)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Unexpected EOF after [StartDirective at [0, 2)]\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -95,9 +96,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newSymbol("x", Context(2, 3)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Unexpected EOF after [Symbol at [2, 3)] 'x'\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -112,9 +113,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newSymbol("y", Context(4, 5)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Expected EndDirective after [Symbol at [2, 3)] 'x'\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -128,9 +129,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newEndDirective(Context(2, 4)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Text or StartDirective expected instead of [StartDirective at [0, 2)]\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -145,9 +146,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newText("abc", Context(3, 6)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Expected Keyword instead of [Text at [3, 6)] 'abc'\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -160,9 +161,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newEndDirective(Context(0, 2)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Cannot parse at [EndDirective at [0, 2)]\n";
@@ -175,7 +176,7 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newText("dinle", Context(0, 5)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
         REQUIRE(nodes.size() == 1);
 
@@ -196,7 +197,7 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
         REQUIRE(nodes.size() == 1);
 
@@ -217,9 +218,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Unsupported keyword `cmd` at [3, 6)\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -234,9 +235,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Expected symbol instead of [EndDirective at [7, 9)]\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -252,9 +253,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newSymbol("abc", Context(7, 10)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Expected 2 symbols instead of 1\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -270,9 +271,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newSymbol("def", Context(11, 14)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Unexpected EOF after [Symbol at [11, 14)] 'def'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -289,9 +290,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newText("zzz", Context(15, 18)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Expected EndDirective instead of [Text at [15, 18)] 'zzz'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -308,9 +309,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             Token(Token::Type::EndDirective, Context(14, 16), "###"),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Expected EndDirective instead of [EndDirective at [14, 16)] '###'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -324,9 +325,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Expected symbol instead of [EndDirective at [14, 16)]\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -341,9 +342,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "loop node must have children.\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -358,9 +359,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Unexpected EOF after [Text at [21, 24)] 'ABC'\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -375,7 +376,7 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
         REQUIRE(nodes.size() == 1);
 
@@ -401,9 +402,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newSymbol("inv", Context(23, 26)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Expected StartDirective instead of [Symbol at [23, 26)] 'inv'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -423,9 +424,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newSymbol("inv", Context(24, 26)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Unexpected EOF after [Symbol at [24, 26)] 'inv'\nloop node must have children.\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -445,9 +446,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             Token(Token::Type::EndBlock, Context(24, 28), "###"),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Expected EndBlock instead of [EndBlock at [24, 28)] '###'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -467,9 +468,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newEndBlock(Context(24, 25)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Unexpected EOF after [EndBlock at [24, 25)]\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -490,9 +491,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newKeyword("nope", Context(25, 29)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Expected Keyword `loop` instead of [Keyword at [25, 29)] 'nope'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -513,9 +514,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newKeyword("loop", Context(25, 29)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Unexpected EOF after [Keyword at [25, 29)] 'loop'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -537,9 +538,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newText("nope", Context(30, 34)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Expected EndDirective instead of [Text at [30, 34)] 'nope'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -553,9 +554,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Expected symbol instead of [EndDirective at [12, 14)]\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -570,9 +571,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "ifeq node must have children.\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -587,7 +588,7 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
         REQUIRE(nodes.size() == 1);
 
@@ -609,9 +610,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Expected symbol instead of [EndDirective at [7, 9)]\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -627,9 +628,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newSymbol("abc", Context(7, 10)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Expected 2 symbols instead of 1\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -645,9 +646,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newSymbol("def", Context(11, 14)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Unexpected EOF after [Symbol at [11, 14)] 'def'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -664,9 +665,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newText("zzz", Context(15, 18)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Expected EndDirective instead of [Text at [15, 18)] 'zzz'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -683,9 +684,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             Token(Token::Type::EndDirective, Context(14, 16), "###"),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Expected EndDirective instead of [EndDirective at [14, 16)] '###'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -699,9 +700,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Expected symbol instead of [EndDirective at [14, 16)]\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -716,7 +717,7 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
         REQUIRE(nodes.size() == 1);
 
@@ -743,9 +744,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newSymbol("inv", Context(23, 26)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Expected StartDirective instead of [Symbol at [23, 26)] 'inv'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -765,9 +766,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newSymbol("inv", Context(24, 26)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Unexpected EOF after [Symbol at [24, 26)] 'inv'\nifeq node must have children.\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -787,9 +788,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             Token(Token::Type::EndBlock, Context(24, 28), "###"),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Expected EndBlock instead of [EndBlock at [24, 28)] '###'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -809,9 +810,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newEndBlock(Context(24, 25)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Unexpected EOF after [EndBlock at [24, 25)]\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -832,9 +833,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newKeyword("nope", Context(25, 29)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Expected Keyword `ifeq` instead of [Keyword at [25, 29)] 'nope'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -855,9 +856,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newKeyword("ifeq", Context(25, 29)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Unexpected EOF after [Keyword at [25, 29)] 'ifeq'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -879,9 +880,9 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             TokenFactory::newText("nope", Context(30, 34)),
         };
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Expected EndDirective instead of [Text at [30, 34)] 'nope'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -896,6 +897,7 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
     auto tokens = std::vector<Token>();
     std::vector<std::unique_ptr<Node>> nodes;
     auto lexer = Lexer();
+    bool parserSuccess;
     auto options = ParserOptions(std::unordered_set<std::string>({"validus"}));
     auto parser = Parser(options);
     auto visitor = PrintingVisitor(dump);
@@ -910,9 +912,9 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Invalid symbol [Symbol at [2, 3)] 'x'\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -927,7 +929,7 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
         REQUIRE(nodes.size() == 1);
 
@@ -948,9 +950,9 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Invalid symbol [Symbol at [8, 9)] 'x'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -964,9 +966,9 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedError = "Symbol already defined: [Symbol at [16, 23)] 'validus'\nCannot parse at [StartDirective at [0, 2)]\n";
         ASSERT_RESULTS()
@@ -980,7 +982,7 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
         REQUIRE(nodes.size() == 1);
 
@@ -1002,9 +1004,9 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Invalid symbol [Symbol at [31, 35)] 'left'\nloop node must have children.\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -1019,9 +1021,9 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
-        REQUIRE(nodes.size() == 0);
+        REQUIRE(!parserSuccess);
 
         expectedDump = "";
         expectedError = "Invalid symbol [Symbol at [36, 41)] 'right'\nloop node must have children.\nCannot parse at [StartDirective at [0, 2)]\n";
@@ -1036,7 +1038,7 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
 
         REQUIRE(errors.size() == 0);
 
-        nodes = parser.parse(tokens, error);
+        parserSuccess = parser.parse(tokens, nodes, error);
 
         REQUIRE(nodes.size() == 1);
 

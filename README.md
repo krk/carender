@@ -29,6 +29,7 @@ OOP design patterns, SOLID and DRY principles are observed as far as possible in
 * No commented-out code.
 * Target recent g++ and clang++ versions.
 * Target 100% unit test **branch** coverage.
+* There are two types of template symbols, string (`Renderer::symbols`) and strings (`Renderer::rangeSymbols`).
 
 ## Implementation
 

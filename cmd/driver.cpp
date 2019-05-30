@@ -10,6 +10,7 @@
 
 using car::lexer::Lexer;
 using car::lexer::Token;
+using car::parser::Node;
 using car::parser::Parser;
 using car::parser::ParserOptions;
 using car::renderer::Renderer;
@@ -48,9 +49,8 @@ bool Driver::Render(std::istream &input)
     // Parse.
     auto options = ParserOptions(symbolNames);
     auto parser = Parser(options);
-
-    auto nodes = parser.parse(tokens, error);
-    if (nodes.size() == 0)
+    std::vector<std::unique_ptr<Node>> nodes;
+    if (!parser.parse(tokens, nodes, error))
     {
         // There are more than one Token, there should be Nodes.
         this->error << "Driver cannot parse." << std::endl;

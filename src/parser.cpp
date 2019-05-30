@@ -357,9 +357,9 @@ fail:
     return {};
 }
 
-std::vector<std::unique_ptr<Node>>
-Parser::parse(const std::vector<lexer::Token> &tokens,
-              std::ostream &error)
+bool Parser::parse(const std::vector<lexer::Token> &tokens,
+                   std::vector<std::unique_ptr<Node>> &output,
+                   std::ostream &error)
 {
     auto begin = tokens.begin();
     auto end = tokens.end();
@@ -367,9 +367,14 @@ Parser::parse(const std::vector<lexer::Token> &tokens,
     if (begin != end)
     {
         error << "Cannot parse at " << *begin << std::endl;
-        return {};
+        return false;
     }
-    return nodes;
+
+    output.insert(output.end(),
+                  std::make_move_iterator(nodes.begin()),
+                  std::make_move_iterator(nodes.end()));
+
+    return true;
 }
 
 } // namespace parser

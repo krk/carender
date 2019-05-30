@@ -264,8 +264,9 @@ public:
     /**
     * Parses `car` template language tokens into parser nodes.
     */
-    std::vector<std::unique_ptr<Node>> parse(const std::vector<lexer::Token> &tokens,
-                                             std::ostream &error);
+    bool parse(const std::vector<lexer::Token> &tokens,
+               std::vector<std::unique_ptr<Node>> &output,
+               std::ostream &error);
 
 private:
     typedef std::vector<std::unique_ptr<Node>> (Parser::*nodeParser)(std::vector<lexer::Token>::const_iterator &begin,

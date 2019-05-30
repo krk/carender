@@ -70,10 +70,11 @@ parseNodes(std::string text,
     auto lexerErrors = lexerError.str();
     REQUIRE(lexerErrors.size() == 0);
 
-    nodes = parser.parse(tokens, parserError);
+    bool parserSuccess = parser.parse(tokens, nodes, parserError);
+    REQUIRE(parserSuccess);
+
     auto parserErrors = parserError.str();
     REQUIRE(parserErrors.size() == 0);
-    REQUIRE(nodes.size() > 0);
 
     return nodes;
 }
