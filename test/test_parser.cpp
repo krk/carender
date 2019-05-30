@@ -708,6 +708,28 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
         ASSERT_RESULTS()
     }
 
+    SECTION("Loop IfEq")
+    {
+        std::stringstream input("{{#loop range elem}} {{#ifeq left right}}ABC{{/ifeq}} {{/loop}}");
+        lexer.lex(input, tokens, error);
+        auto errors = error.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 1);
+
+        for (auto const &n : nodes)
+        {
+            n->accept(visitor);
+        }
+
+        expectedDump = "[LoopNode `elem` in `range` depth`1` {\n  [IfEqNode `left` `right`] {\n  [TextNode `ABC`]\n}\n} depth`1`\n";
+        expectedError = "";
+        ASSERT_RESULTS()
+    }
+
     SECTION("IfEq two symbols - invalid ending - 1")
     {
         tokens = {
@@ -969,6 +991,62 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
 
         expectedDump = "[LoopNode `i` in `validus` depth`1` {\n  [TextNode `QED`]\n} depth`1`\n";
 
+        ASSERT_RESULTS()
+    }
+
+    SECTION("Loop IfEq - two symbols undefined")
+    {
+        std::stringstream input("{{#loop validus elem}} {{#ifeq left right}}ABC{{/ifeq}} {{/loop}}");
+        lexer.lex(input, tokens, error);
+        auto errors = error.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedDump = "";
+        expectedError = "Invalid symbol [Symbol at [31, 35)] 'left'\nloop node must have children.\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("Loop IfEq - one symbol undefined")
+    {
+        std::stringstream input("{{#loop validus elem}} {{#ifeq elem right}}ABC{{/ifeq}} {{/loop}}");
+        lexer.lex(input, tokens, error);
+        auto errors = error.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 0);
+
+        expectedDump = "";
+        expectedError = "Invalid symbol [Symbol at [36, 41)] 'right'\nloop node must have children.\nCannot parse at [StartDirective at [0, 2)]\n";
+        ASSERT_RESULTS()
+    }
+
+    SECTION("Loop IfEq - no symbol undefined")
+    {
+        std::stringstream input("{{#loop validus elem}} {{#ifeq elem elem}}ABC{{/ifeq}} {{/loop}}");
+        lexer.lex(input, tokens, error);
+        auto errors = error.str();
+
+        REQUIRE(errors.size() == 0);
+
+        nodes = parser.parse(tokens, error);
+
+        REQUIRE(nodes.size() == 1);
+
+        for (auto const &n : nodes)
+        {
+            n->accept(visitor);
+        }
+
+        expectedDump = "[LoopNode `elem` in `validus` depth`1` {\n  [IfEqNode `elem` `elem`] {\n  [TextNode `ABC`]\n}\n} depth`1`\n";
+        expectedError = "";
         ASSERT_RESULTS()
     }
 }

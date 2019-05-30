@@ -220,7 +220,15 @@ public:
     * Constructs an instance of the parser options for the `car` template language.
     */
     ParserOptions(const std::unordered_set<std::string> &symbols)
-        : symbols(symbols)
+        : symbols(symbols), symbolChecksEnabled(symbols.size() > 0)
+    {
+    }
+
+    /**
+    * Constructs an instance of the parser options for the `car` template language.
+    */
+    ParserOptions()
+        : ParserOptions(std::unordered_set<std::string>())
     {
     }
 
@@ -232,8 +240,17 @@ public:
         return this->symbols;
     }
 
+    /**
+    * Get SymbolChecksEnabled option.
+    */
+    bool SymbolChecksEnabled()
+    {
+        return this->symbolChecksEnabled;
+    }
+
 private:
     std::unordered_set<std::string> symbols;
+    const bool symbolChecksEnabled;
 };
 
 class Parser

@@ -50,7 +50,7 @@ constexpr std::size_t string_length(
     }
 
 #define CHECK_SYMBOL(symbol, it)                                               \
-    if (!this->options.Symbols().empty() &&                                    \
+    if (this->options.SymbolChecksEnabled() &&                                 \
         this->options.Symbols().find(symbol) == this->options.Symbols().end()) \
     {                                                                          \
         error << "Invalid symbol " << *it << std::endl;                        \
@@ -58,7 +58,7 @@ constexpr std::size_t string_length(
     }
 
 #define CHECK_SYMBOL_UNDEFINED(symbol, it)                                     \
-    if (!this->options.Symbols().empty() &&                                    \
+    if (this->options.SymbolChecksEnabled() &&                                 \
         this->options.Symbols().find(symbol) != this->options.Symbols().end()) \
     {                                                                          \
         error << "Symbol already defined: " << *it << std::endl;               \
