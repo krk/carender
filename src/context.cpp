@@ -10,4 +10,6 @@ std::ostream &operator<<(std::ostream &os, const Context &ctx)
     return os;
 }
 
+// LCOV_EXCL_START
 } // namespace car
+  // LCOV_EXCL_STOP

@@ -105,4 +105,6 @@ void Renderer::visit(const IfEqNode &n)
 }
 
 } // namespace renderer
+// LCOV_EXCL_START
 } // namespace car
+  // LCOV_EXCL_STOP

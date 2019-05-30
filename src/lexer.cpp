@@ -268,4 +268,6 @@ bool Lexer::lex(std::istream &input, std::vector<Token> &output, std::ostream &e
 }
 
 } // namespace lexer
+// LCOV_EXCL_START
 } // namespace car
+  // LCOV_EXCL_STOP

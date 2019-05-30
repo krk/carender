@@ -248,7 +248,8 @@ Parser::parseBlock(std::vector<lexer::Token>::const_iterator &begin,
 
         it++;
         auto parser = pair->second;
-        return (this->*parser)(it, end, error);
+
+        return (this->*parser)(it, end, error); // LCOV_EXCL_LINE coverage not reported successfully on member function pointer.
     }
 
     error << "Expected Keyword instead of " << *it << std::endl;
@@ -371,4 +372,6 @@ Parser::parse(const std::vector<lexer::Token> &tokens,
 }
 
 } // namespace parser
+// LCOV_EXCL_START
 } // namespace car
+  // LCOV_EXCL_STOP

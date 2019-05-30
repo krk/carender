@@ -54,4 +54,6 @@ void PrintingVisitor::visit(const IfEqNode &n)
 }
 
 } // namespace parser
+// LCOV_EXCL_START
 } // namespace car
+  // LCOV_EXCL_STOP
