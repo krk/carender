@@ -1,5 +1,5 @@
-#ifndef _RENDERER_HPP_INCLUDED
-#define _RENDERER_HPP_INCLUDED
+#ifndef _CARENDER_RENDERER_HPP_INCLUDED
+#define _CARENDER_RENDERER_HPP_INCLUDED
 
 #include <ostream>
 #include <string>
@@ -21,6 +21,9 @@ namespace renderer
 class Renderer : public Visitor
 {
 public:
+    /**
+    * Constructs a renderer that executes the template nodes and writes the result to output.
+    */
     Renderer(
         const std::unordered_map<std::string, std::string> &symbols,
         const std::unordered_map<std::string, std::vector<std::string>> &rangeSymbols,
@@ -33,6 +36,9 @@ public:
     void visit(const LoopNode &n) override;
     void visit(const IfEqNode &n) override;
 
+    /**
+    * Returns true if the renderer has encountered an error and wrote it to the error stream.
+    */
     bool HasError()
     {
         return this->hasError;
@@ -51,4 +57,4 @@ private:
 } // namespace renderer
 } // namespace car
 
-#endif // _RENDERER_HPP_INCLUDED
+#endif // _CARENDER_RENDERER_HPP_INCLUDED

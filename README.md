@@ -47,11 +47,11 @@ bool lex(std::istream &input, std::vector<Token> &output, std::ostream &error);
 Entry point is the public `parse` method:
 
 ```c++
-A
+std::vector<std::unique_ptr<Node>> parse(const std::vector<Token> &tokens, std::ostream &error)
 ```
 
 
-`Parser` internal dependencies:
+Simplified `Parser` method call graph:
 
 ![parser methods](doc/parser.png)
 
@@ -62,7 +62,13 @@ Notes:
 
 **Renderer** implements the `Visitor Pattern` to consume a stream of nodes from the parser.
 
-Data flow using `lexer`, `parser` and `renderer`.
+Entry point is the public `visit` methods called from the `accept` methods on nodes:
+
+```c++
+node->accept(renderer);
+```
+
+Data flow using `lexer`, `parser` and `renderer`:
 
 ![parser methods](doc/dataflow.png)
 

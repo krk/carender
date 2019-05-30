@@ -1,5 +1,5 @@
-#ifndef _PARSER_HPP_INCLUDED
-#define _PARSER_HPP_INCLUDED
+#ifndef _CARENDER_PARSER_HPP_INCLUDED
+#define _CARENDER_PARSER_HPP_INCLUDED
 
 #include <string>
 #include <vector>
@@ -37,8 +37,14 @@ class Node
 public:
     virtual ~Node() = default;
 
+    /**
+    * Accept a visitor.
+    */
     virtual void accept(Visitor &v) = 0;
 
+    /**
+    * Get context of the node.
+    */
     const Context &Ctx() const { return this->ctx; }
 
 protected:
@@ -52,6 +58,9 @@ class PrintNode : public Node
 public:
     virtual ~PrintNode() = default;
 
+    /**
+    * Constructs a PrintNode.
+    */
     PrintNode(std::string symbol, Context ctx) : Node(ctx), symbol(symbol) {}
 
     void accept(Visitor &v) override
@@ -59,6 +68,9 @@ public:
         v.visit(*this);
     }
 
+    /**
+    * Get symbol name to be printed.
+    */
     const std::string &Symbol() const { return this->symbol; }
 
 private:
@@ -70,6 +82,9 @@ class TextNode : public Node
 public:
     virtual ~TextNode() = default;
 
+    /**
+    * Constructs a TextNode.
+    */
     TextNode(std::string text, Context ctx) : Node(ctx), text(text) {}
 
     void accept(Visitor &v) override
@@ -77,6 +92,9 @@ public:
         v.visit(*this);
     }
 
+    /**
+    * Get text of the node.
+    */
     const std::string &Text() const { return this->text; }
 
 private:
@@ -88,11 +106,17 @@ class LoopNode : public Node
 public:
     virtual ~LoopNode() = default;
 
+    /**
+    * Constructs a LoopNode.
+    */
     LoopNode(std::string rangeSymbol, std::string elementSymbol, Context ctx)
         : Node(ctx), rangeSymbol(rangeSymbol), elementSymbol(elementSymbol), children(std::vector<std::shared_ptr<Node>>())
     {
     }
 
+    /**
+    * Constructs a LoopNode.
+    */
     LoopNode(std::string rangeSymbol, std::string elementSymbol, Context ctx, std::vector<std::shared_ptr<Node>> children)
         : Node(ctx), rangeSymbol(rangeSymbol), elementSymbol(elementSymbol), children(children)
     {
@@ -103,15 +127,25 @@ public:
         v.visit(*this);
     }
 
+    /**
+    * Get the range symbol of the loop node.
+    */
     const std::string &RangeSymbol() const
     {
         return this->rangeSymbol;
     }
+
+    /**
+    * Get the element symbol of the loop node.
+    */
     const std::string &ElementSymbol() const
     {
         return this->elementSymbol;
     }
 
+    /**
+    * Get children of the loop node.
+    */
     const std::vector<std::shared_ptr<Node>> &Children() const
     {
         return this->children;
@@ -128,11 +162,17 @@ class IfEqNode : public Node
 public:
     virtual ~IfEqNode() = default;
 
+    /**
+    * Constructs an IfEqNode.
+    */
     IfEqNode(std::string leftSymbol, std::string rightSymbol, Context ctx)
         : Node(ctx), leftSymbol(leftSymbol), rightSymbol(rightSymbol), children(std::vector<std::shared_ptr<Node>>())
     {
     }
 
+    /**
+    * Constructs a IfEqNode.
+    */
     IfEqNode(std::string leftSymbol, std::string rightSymbol, Context ctx, std::vector<std::shared_ptr<Node>> children)
         : Node(ctx), leftSymbol(leftSymbol), rightSymbol(rightSymbol), children(children)
     {
@@ -143,15 +183,25 @@ public:
         v.visit(*this);
     }
 
+    /**
+    * Get the left symbol of the loop node.
+    */
     const std::string &LeftSymbol() const
     {
         return this->leftSymbol;
     }
+
+    /**
+    * Get the right symbol of the loop node.
+    */
     const std::string &RightSymbol() const
     {
         return this->rightSymbol;
     }
 
+    /**
+    * Get children of the loop node.
+    */
     const std::vector<std::shared_ptr<Node>> &Children() const
     {
         return this->children;
@@ -166,11 +216,17 @@ private:
 class ParserOptions
 {
 public:
+    /**
+    * Constructs an instance of the parser options for the `car` template language.
+    */
     ParserOptions(const std::unordered_set<std::string> &symbols)
         : symbols(symbols)
     {
     }
 
+    /**
+    * Get defined symbol names.
+    */
     std::unordered_set<std::string> &Symbols()
     {
         return this->symbols;
@@ -183,8 +239,14 @@ private:
 class Parser
 {
 public:
+    /**
+    * Constructs an instance of the parser for the `car` template language.
+    */
     Parser(ParserOptions options) : options(options) {}
 
+    /**
+    * Parses `car` template language tokens into parser nodes.
+    */
     std::vector<std::unique_ptr<Node>> parse(const std::vector<lexer::Token> &tokens,
                                              std::ostream &error);
 
@@ -241,4 +303,4 @@ private:
 } // namespace parser
 } // namespace car
 
-#endif // _PARSER_HPP_INCLUDED
+#endif // _CARENDER_PARSER_HPP_INCLUDED

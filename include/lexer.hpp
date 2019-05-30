@@ -1,5 +1,5 @@
-#ifndef _LEXER_HPP_INCLUDED
-#define _LEXER_HPP_INCLUDED
+#ifndef _CARENDER_LEXER_HPP_INCLUDED
+#define _CARENDER_LEXER_HPP_INCLUDED
 
 #include <string>
 #include <istream>
@@ -28,6 +28,9 @@ public:
         Symbol,
     };
 
+    /**
+    * Constructs a Token for the `car` template language.
+    */
     Token(const Type type, const Context context, const std::string value = "")
         : type(type), value(value), context(context) {}
 
@@ -53,8 +56,19 @@ public:
         return !operator==(rhs);
     }
 
+    /**
+    * Get type of the Token.
+    */
     Type GetType() const { return this->type; }
+
+    /**
+    * Get value of the Token.
+    */
     const std::string &GetValue() const { return this->value; }
+
+    /**
+    * Get context of the Token.
+    */
     const Context &GetContext() const { return this->context; }
 
 private:
@@ -78,10 +92,14 @@ public:
 class Lexer
 {
 public:
-    /// Creates an instance of the lexer with StartDirective "{{",
-    // EndDirective "}}", StartBlock "#" and EndBlock "/".
+    /**
+    * Constructs an instance of the lexer for the `car` template language.
+    */
     Lexer() {}
 
+    /**
+    * Lexes `car` template language into tokens.
+    */
     bool lex(std::istream &input, std::vector<Token> &output, std::ostream &error);
 
 private:
@@ -93,4 +111,4 @@ private:
 
 } // namespace lexer
 } // namespace car
-#endif
+#endif // _CARENDER_LEXER_HPP_INCLUDED

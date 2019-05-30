@@ -1,5 +1,5 @@
-#ifndef _DRIVER_HPP_INCLUDED
-#define _DRIVER_HPP_INCLUDED
+#ifndef _CARENDER_DRIVER_HPP_INCLUDED
+#define _CARENDER_DRIVER_HPP_INCLUDED
 
 #include <algorithm>
 #include <iostream>
@@ -43,4 +43,4 @@ private:
 } // namespace driver
 } // namespace car
 
-#endif // _DRIVER_HPP_INCLUDED
+#endif // _CARENDER_DRIVER_HPP_INCLUDED

@@ -1,5 +1,5 @@
-#ifndef _PRINTING_VISITOR_HPP_INCLUDED
-#define _PRINTING_VISITOR_HPP_INCLUDED
+#ifndef _CARENDER_PRINTING_VISITOR_HPP_INCLUDED
+#define _CARENDER_PRINTING_VISITOR_HPP_INCLUDED
 
 #include <ostream>
 
@@ -13,9 +13,10 @@ namespace parser
 class PrintingVisitor : public Visitor
 {
 public:
+    /**
+    * Constructs a visitor that prints nodes.
+    */
     PrintingVisitor(std::ostream &output) : output(output), loopDepth(0) {}
-
-    virtual void indent();
 
     void visit(const TextNode &n) override;
     void visit(const PrintNode &n) override;
@@ -25,6 +26,8 @@ public:
     virtual ~PrintingVisitor() = default;
 
 private:
+    void indent();
+
     std::ostream &output;
     int loopDepth;
 };
@@ -32,4 +35,4 @@ private:
 } // namespace parser
 } // namespace car
 
-#endif // _PRINTING_VISITOR_HPP_INCLUDED
+#endif // _CARENDER_PRINTING_VISITOR_HPP_INCLUDED
