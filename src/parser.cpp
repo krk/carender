@@ -87,6 +87,7 @@ Parser::parseSymbols(std::vector<lexer::Token>::const_iterator &begin,
                      std::ostream &error)
 {
     auto symbols = std::vector<std::string>();
+    symbols.reserve(count);
     int seen = 0;
     for (auto &it = begin; it != end && seen < count; it++)
     {
