@@ -92,6 +92,8 @@ Data flow using `lexer`, `parser` and `renderer`:
 * To increase branch coverage, compiler-generated unreachable destructor branches are excluded with `LCOV_EXCL_START` and `LCOV_EXCL_STOP` markers.
   * Related: ["G++ emits two copies of constructors and destructors."](https://gcc.gnu.org/bugs/#nonbugs_cxx) and [What is the branch in the destructor reported by gcov?](https://stackoverflow.com/a/7199706/128002).
 
+![coverage](doc/coverage.png)
+
 ## Usage
 
 `carender` can be linked as a static library. A command line tool is provided as an example of using the library.
