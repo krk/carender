@@ -1,4 +1,11 @@
 digraph {
+    parse [shape="triangle"]
+
+    PrintNode [shape="octagon"]
+    TextNode [shape="octagon"]
+    LoopNode [shape="octagon"]
+    IfEqNode [shape="octagon"]
+
     parse -> parseNodes
 
     parseNodes -> PrintNode
