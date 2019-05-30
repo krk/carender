@@ -1,6 +1,6 @@
 FROM debian:stretch
 
-RUN apt-get update && apt-get install -y build-essential lcov
+RUN apt-get update && apt-get install -y build-essential lcov doxygen
 
 RUN mkdir /app
 ADD . /app
@@ -14,3 +14,5 @@ RUN ./bin/test
 RUN make clean && make -j`nproc` cover
 
 RUN make clean && make -j`nproc` lib cmd
+
+RUN make docs

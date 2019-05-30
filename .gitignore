@@ -3,6 +3,7 @@
 test_coverage
 bin
 from_docker
+docs-doxygen
 
 *.ii
 *.s

@@ -84,6 +84,7 @@ A [Makefile](Makefile) is used for building, testing and coverage reporting.
 * `lib`: To build the static library.
 * `test`: To build unit tests.
 * `cmd`: To build example command-line tool.
+* `docs`: To build doxygen documentation.
 * `clean`: Remove build artifacts.
 * `cover`: Build unit tests with coverage instrumentation, run tests to collect coverage information and create html reports in `test_coverage` folder.
 * `cover-show`: Build `cover` and display index with `firefox`.

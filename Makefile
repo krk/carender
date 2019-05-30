@@ -33,10 +33,14 @@ test: dirmake $(BIN)/$(TEST_BIN)
 
 cmd: dirmake $(BIN)/$(CMD_BIN)
 
+docs:
+	doxygen Doxyfile
+
 clean: dirmake
 	$(RM) -rf $(OBJ)
 	$(RM) -rf $(BIN)
 	$(RM) -rf $(LIB)
+	$(RM) -rf docs-doxygen
 
 DEPENDS := $(patsubst $(SRC)/%.cpp,$(OBJ)/%.d,$(wildcard $(SRC)/*.cpp))
 
