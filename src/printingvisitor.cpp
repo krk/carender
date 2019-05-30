@@ -29,14 +29,14 @@ void PrintingVisitor::visit(const LoopNode &n)
 {
     this->indent();
     this->loopDepth++;
-    this->output << "[LoopNode `" << n.ElementSymbol() << "` in `" << n.RangeSymbol() << "` depth`" << loopDepth << "` {" << std::endl;
+    this->output << "[LoopNode `" << n.ElementSymbol() << "` in `" << n.RangeSymbol() << "`] {" << std::endl;
 
     for (auto const &child : n.Children())
     {
         child->accept(*this);
     }
 
-    this->output << "} depth`" << this->loopDepth << "`" << std::endl;
+    this->output << "}" << std::endl;
     this->loopDepth--;
 }
 

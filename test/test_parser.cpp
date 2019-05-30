@@ -385,7 +385,7 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             n->accept(visitor);
         }
 
-        expectedDump = "[LoopNode `elem` in `range1` depth`1` {\n  [TextNode `ABC`]\n} depth`1`\n";
+        expectedDump = "[LoopNode `elem` in `range1`] {\n  [TextNode `ABC`]\n}\n";
         ASSERT_RESULTS()
     }
 
@@ -726,7 +726,7 @@ TEST_CASE("Parser::parse no symbol check", "[parser]")
             n->accept(visitor);
         }
 
-        expectedDump = "[LoopNode `elem` in `range` depth`1` {\n  [TextNode ` `]\n  [IfEqNode `left` `right`] {\n  [TextNode `ABC`]\n}\n  [TextNode ` `]\n} depth`1`\n";
+        expectedDump = "[LoopNode `elem` in `range`] {\n  [TextNode ` `]\n  [IfEqNode `left` `right`] {\n  [TextNode `ABC`]\n}\n  [TextNode ` `]\n}\n";
         expectedError = "";
         ASSERT_RESULTS()
     }
@@ -991,7 +991,7 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
             n->accept(visitor);
         }
 
-        expectedDump = "[LoopNode `i` in `validus` depth`1` {\n  [TextNode `QED`]\n} depth`1`\n";
+        expectedDump = "[LoopNode `i` in `validus`] {\n  [TextNode `QED`]\n}\n";
 
         ASSERT_RESULTS()
     }
@@ -1047,7 +1047,7 @@ TEST_CASE("Parser::parse symbol check", "[parser]")
             n->accept(visitor);
         }
 
-        expectedDump = "[LoopNode `elem` in `validus` depth`1` {\n  [TextNode `  `]\n  [IfEqNode `elem` `elem`] {\n  [TextNode `ABC`]\n}\n  [TextNode ` `]\n} depth`1`\n";
+        expectedDump = "[LoopNode `elem` in `validus`] {\n  [TextNode `  `]\n  [IfEqNode `elem` `elem`] {\n  [TextNode `ABC`]\n}\n  [TextNode ` `]\n}\n";
         expectedError = "";
         ASSERT_RESULTS()
     }
