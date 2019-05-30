@@ -34,12 +34,6 @@ OOP design patterns, SOLID and DRY principles are observed as far as possible in
 
 `carender` consists of a lexer, a parser, a renderer and a command line tool that uses these components as an example.
 
-* A [Makefile](Makefile) is used for building, testing and coverage reporting.
-* [catch2](https://github.com/catchorg/Catch2) chosen for unit testing. It is a header-only library and easy to add to a project.
-* `g++` and [lcov](http://ltp.sourceforge.net/coverage/lcov.php) for coverage reports. Coverage reporting is not supported when building with `clang++`.
-* Optional - A `Dockerfile` added to document the build steps in a reproducible manner. Run `build_in_docker.sh` to build, test and create coverage reports.
-* Windows and OSX support is best effort.
-
 **Lexer** reads an `istream` and ignores whitespace in non-text context, e.g. between START_DIRECTIVE and START_BLOCK in `{{   #loop range element}}`. Inside text content, lexer does not ignore whitespace. For this purpose, lexer keeps track of the state as "inside START_DIRECTIVE or not" and "inside START_BLOCK/END_BLOCK or not".
 
 Entry point is the public `lex` method:
@@ -72,11 +66,33 @@ Data flow using `lexer`, `parser` and `renderer`.
 
 ![parser methods](doc/dataflow.png)
 
+### Building
+
+`make all`
+
+* A [Makefile](Makefile) is used for building, testing and coverage reporting.
+
+### Testing
+
+`make test && bin/test`
+
+* [catch2](https://github.com/catchorg/Catch2) chosen for unit testing. It is a header-only library and easy to add to a project.
+
+### Coverage
+
+`make cover`
+
+* `g++` and [lcov](http://ltp.sourceforge.net/coverage/lcov.php) for coverage reports. Coverage reporting is not supported when building with `clang++`.
+* To increase branch coverage, compiler-generated unreachable destructor branches are excluded with `LCOV_EXCL_START` and `LCOV_EXCL_STOP` markers.
+  * Related: ["G++ emits two copies of constructors and destructors."](https://gcc.gnu.org/bugs/#nonbugs_cxx) and [What is the branch in the destructor reported by gcov?](https://stackoverflow.com/a/7199706/128002).
+
 ## Usage
 
 `carender` can be linked as a static library. A command line tool is provided as an example of using the library.
 
 **Warning:** Only tested on Ubuntu 18.04 and Debian Stretch.
+
+* A `Dockerfile` added to document the build steps in a reproducible manner. Run `build_in_docker.sh` to build, test and create coverage reports.
 
 ### High-level Driver API
 

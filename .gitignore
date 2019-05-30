@@ -4,6 +4,9 @@ test_coverage
 bin
 from_docker
 
+*.ii
+*.s
+
 *.gcno
 *.gcda
 
