@@ -290,11 +290,12 @@ private:
                const std::vector<lexer::Token>::const_iterator end,
                std::ostream &error);
 
-    template <typename NodeType, bool checkAllSymbols, char... keywordChars>
+    template <typename NodeType, bool checkAllSymbols>
     std::vector<std::unique_ptr<Node>>
     parseBlockWithTwoSymbols(std::vector<lexer::Token>::const_iterator &begin,
-                             const std::vector<lexer::Token>::const_iterator end,
-                             std::ostream &error);
+                                     const std::vector<lexer::Token>::const_iterator end,
+                                     std::ostream &error,
+                                     const std::string &keyword);
 
     std::vector<std::unique_ptr<Node>> parseLoop(std::vector<lexer::Token>::const_iterator &begin,
                                                  const std::vector<lexer::Token>::const_iterator end,
