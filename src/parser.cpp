@@ -14,13 +14,6 @@ namespace car
 namespace parser
 {
 
-template <std::size_t S>
-constexpr std::size_t string_length(
-    char const (&)[S])
-{
-    return S - 1;
-}
-
 static bool parseExact(std::vector<lexer::Token>::const_iterator &begin, const std::vector<lexer::Token>::const_iterator &end,
                        std::ostream &error, const lexer::Token::Type type, const std::string &value = "")
 {
