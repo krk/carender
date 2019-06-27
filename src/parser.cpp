@@ -21,60 +21,27 @@ constexpr std::size_t string_length(
     return S - 1;
 }
 
-// Merge these two when "if constexpr" is available.
-// If we merge them now, test coverage will not be 100%.
-#define PARSE_EXACT(type)                                              \
-    if (begin == end)                                                  \
-    {                                                                  \
-        error << "Unexpected EOF after " << *(begin - 1) << std::endl; \
-        goto fail;                                                     \
-    }                                                                  \
-    if (!this->parseExact(begin, (type), ""))                          \
-    {                                                                  \
-        error << "Expected " << type;                                  \
-        error << " instead of " << *begin << std::endl;                \
-        goto fail;                                                     \
-    }
-
-#define PARSE_EXACT_VALUE(type, value)                                 \
-    if (begin == end)                                                  \
-    {                                                                  \
-        error << "Unexpected EOF after " << *(begin - 1) << std::endl; \
-        goto fail;                                                     \
-    }                                                                  \
-    if (!this->parseExact(begin, (type), (value)))                     \
-    {                                                                  \
-        error << "Expected " << type << " `" << value << "`";          \
-        error << " instead of " << *begin << std::endl;                \
-        goto fail;                                                     \
-    }
-
-#define CHECK_SYMBOL(symbol, it)                                               \
-    if (this->options.SymbolChecksEnabled() &&                                 \
-        this->options.Symbols().find(symbol) == this->options.Symbols().end()) \
-    {                                                                          \
-        error << "Invalid symbol " << *it << std::endl;                        \
-        goto fail;                                                             \
-    }
-
-#define CHECK_SYMBOL_UNDEFINED(symbol, it)                                     \
-    if (this->options.SymbolChecksEnabled() &&                                 \
-        this->options.Symbols().find(symbol) != this->options.Symbols().end()) \
-    {                                                                          \
-        error << "Symbol already defined: " << *it << std::endl;               \
-        goto fail;                                                             \
-    }
-
-bool Parser::parseExact(std::vector<lexer::Token>::const_iterator &begin,
-                        const Type type,
-                        const std::string &value) const
+static bool parseExact(std::vector<lexer::Token>::const_iterator &begin, const std::vector<lexer::Token>::const_iterator &end,
+                       std::ostream &error, const lexer::Token::Type type, const std::string &value = "")
 {
+    if (begin == end)
+    {
+        error << "Unexpected EOF after " << *(begin - 1) << std::endl;
+        return false;
+    }
+
     if (begin->GetType() == type && begin->GetValue() == value)
     {
         begin++;
         return true;
     }
 
+    error << "Expected " << type;
+    if (value.length() > 0)
+    {
+        error << " `" << value << "`";
+    }
+    error << " instead of " << *begin << std::endl;
     return false;
 }
 
@@ -100,12 +67,23 @@ Parser::parseSymbols(std::vector<lexer::Token>::const_iterator &begin,
             if (checkAllSymbols || seen == 0)
             {
                 // Only first symbol is checked, subsequent symbols are interpreted as declarations.
-                CHECK_SYMBOL(symbol, it)
+                if (this->options.SymbolChecksEnabled() &&
+                    this->options.Symbols().find(symbol) == this->options.Symbols().end())
+                {
+                    error << "Invalid symbol " << *it << std::endl;
+                    goto fail;
+                }
             }
             else
             {
                 // If symbol is not defined, add it. It is an error to define same symbol more than once in a file.
-                CHECK_SYMBOL_UNDEFINED(symbol, it);
+                if (this->options.SymbolChecksEnabled() &&
+                    this->options.Symbols().find(symbol) != this->options.Symbols().end())
+                {
+                    error << "Symbol already defined: " << *it << std::endl;
+                    goto fail;
+                }
+
                 declared.push_back(symbol);
             }
 
@@ -126,7 +104,10 @@ Parser::parseSymbols(std::vector<lexer::Token>::const_iterator &begin,
     }
 
     // Next symbol must be an EndDirective.
-    PARSE_EXACT(Type::EndDirective)
+    if (!parseExact(begin, end, error, Type::EndDirective))
+    {
+        goto fail;
+    }
 
     return symbols;
 
@@ -169,10 +150,25 @@ Parser::parseBlockWithTwoSymbols(std::vector<lexer::Token>::const_iterator &begi
     }
 
     // Parse StartDirective EndBlock Keyword EndDirective.
-    PARSE_EXACT(Type::StartDirective)
-    PARSE_EXACT(Type::EndBlock)
-    PARSE_EXACT_VALUE(Type::Keyword, keyword)
-    PARSE_EXACT(Type::EndDirective)
+    if (!parseExact(begin, end, error, Type::StartDirective))
+    {
+        goto fail;
+    }
+
+    if (!parseExact(begin, end, error, Type::EndBlock))
+    {
+        goto fail;
+    }
+
+    if (!parseExact(begin, end, error, Type::Keyword, keyword))
+    {
+        goto fail;
+    }
+
+    if (!parseExact(begin, end, error, Type::EndDirective))
+    {
+        goto fail;
+    }
 
     // Return NodeType.
     {
@@ -299,7 +295,12 @@ Parser::parseNodes(std::vector<lexer::Token>::const_iterator &begin,
                 }
 
                 const auto &symbol = next->GetValue();
-                CHECK_SYMBOL(symbol, next)
+                if (this->options.SymbolChecksEnabled() &&
+                    this->options.Symbols().find(symbol) == this->options.Symbols().end())
+                {
+                    error << "Invalid symbol " << *next << std::endl;
+                    goto fail;
+                }
 
                 nodes.push_back(std::make_unique<PrintNode>(
                     PrintNode(symbol,

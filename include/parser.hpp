@@ -281,11 +281,6 @@ private:
                  std::vector<std::string> &declared,
                  std::ostream &error);
 
-    bool
-    parseExact(std::vector<lexer::Token>::const_iterator &begin,
-               const lexer::Token::Type type,
-               const std::string &value = "") const;
-
     std::vector<std::unique_ptr<Node>> parseNodes(std::vector<lexer::Token>::const_iterator &begin,
                                                   const std::vector<lexer::Token>::const_iterator end,
                                                   std::ostream &error);
