@@ -1,6 +1,7 @@
 CXX     := $(if $(CXX),$(CXX),g++)
-C_FLAGS := -std=c++14 -Wall -Wextra -O3 -g -MMD -MP ${SANITIZE}
-C_FLAGS_COVER := -std=c++14 -Wall -Wextra -O3 -g ${SANITIZE} --coverage -fno-exceptions -fno-inline
+CSTD    := $(if $(CSTD),$(CSTD),c++14)
+C_FLAGS := -std=${CSTD} -Wall -Wextra -O3 -g -MMD -MP ${SANITIZE}
+C_FLAGS_COVER := -std=${CSTD} -Wall -Wextra -O3 -g ${SANITIZE} --coverage -fno-exceptions -fno-inline
 
 OBJ		:= obj
 BIN		:= bin

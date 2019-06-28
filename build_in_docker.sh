@@ -1,16 +1,12 @@
 #! /bin/bash
 
-docker rm -f carender-ci
+set -o errexit
 
-docker build -t carender-ci .
-docker create --name carender-ci carender-ci
+CXX=${1:-g++-9}
+CSTD=${2:-c++14}
+COVER=${3}
 
-rm -rf from_docker
-mkdir ./from_docker
+docker rm -f carender-ci || true
 
-docker cp carender-ci:/app/bin/ ./from_docker/bin
-docker cp carender-ci:/app/lib/ ./from_docker/lib
-docker cp carender-ci:/app/test_coverage/ ./from_docker/test_coverage
-docker cp carender-ci:/app/docs-doxygen/ ./from_docker/docs-doxygen
-
-echo Artifacts extracted from docker to ./from_docker/
+echo docker build -t carender-ci --build-arg CXX="$CXX" --build-arg CSTD="$CSTD" --build-arg COVER="$COVER" --build-arg CI="$CI" .
+docker build -t carender-ci --build-arg CXX="$CXX" --build-arg CSTD="$CSTD" --build-arg COVER="$COVER" --build-arg CI="$CI" .

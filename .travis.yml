@@ -1,0 +1,22 @@
+language: cpp
+fast_finish: true
+
+services:
+  - docker
+os:
+  - linux
+
+matrix:
+  include:
+    - env: CXX=g++-8 CSTD=c++14 COVER=1 CI=1
+    - env: CXX=clang++-7 CSTD=c++14 COVER=0 CI=1
+    - env: CXX=clang++-9 CSTD=c++14 COVER=0 CI=1
+
+    - env: CXX=g++-8 CSTD=c++17 COVER=1 CI=1
+    - env: CXX=clang++-9 CSTD=c++17 COVER=0 CI=1
+
+    - env: CXX=g++-8 CSTD=c++2a COVER=1 CI=1
+    - env: CXX=clang++-9 CSTD=c++2a COVER=0 CI=1
+
+script:
+  - ./build_in_docker.sh $CXX $CSTD $COVER
